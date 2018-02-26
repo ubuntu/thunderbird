@@ -11,8 +11,10 @@ apps:
     environment:
       DISABLE_WAYLAND: 1
     plugs:
+      - avahi-observe
       - browser-sandbox
       - camera
+      - cups-control
       - desktop
       - desktop-legacy
       - gsettings
