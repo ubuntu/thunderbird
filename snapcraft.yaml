@@ -55,7 +55,7 @@ parts:
       - gtk-update-icon-cache
     install: |
       set -eux
-      mkdir -p $SNAPCRAFT_PART_INSTALL/usr/share/mime/packages
+      mkdir -p $SNAPCRAFT_PART_INSTALL/usr/share/mime
       update-mime-database $SNAPCRAFT_PART_INSTALL/usr/share/mime
       for dir in $SNAPCRAFT_PART_INSTALL/usr/share/icons/*; do
         if [ -f "$dir/index.theme" ]; then
