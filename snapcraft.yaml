@@ -10,6 +10,7 @@ apps:
     command: desktop-launch $SNAP/thunderbird-bin
     environment:
       DISABLE_WAYLAND: 1
+      HOME: "$SNAP_USER_COMMON"
     plugs:
       - avahi-observe
       - browser-sandbox
@@ -50,15 +51,9 @@ parts:
   magic:
     after: [thunderbird]
     plugin: nil
-    build-packages:
+    stage-packages:
       - shared-mime-info
-      - gtk-update-icon-cache
     install: |
       set -eux
       mkdir -p $SNAPCRAFT_PART_INSTALL/usr/share/mime
       update-mime-database $SNAPCRAFT_PART_INSTALL/usr/share/mime
-      for dir in $SNAPCRAFT_PART_INSTALL/usr/share/icons/*; do
-        if [ -f "$dir/index.theme" ]; then
-          gtk-update-icon-cache --force "$dir"
-        fi
-      done
