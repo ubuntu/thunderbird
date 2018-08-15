@@ -54,7 +54,8 @@ parts:
     plugin: nil
     stage-packages:
       - shared-mime-info
-    install: |
+    override-build: |
+      snapcraftctl build
       set -eux
       mkdir -p $SNAPCRAFT_PART_INSTALL/usr/share/mime
       update-mime-database $SNAPCRAFT_PART_INSTALL/usr/share/mime
