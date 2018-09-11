@@ -71,3 +71,11 @@ parts:
       set -eux
       mkdir -p $SNAPCRAFT_PART_INSTALL/usr/share/mime
       update-mime-database $SNAPCRAFT_PART_INSTALL/usr/share/mime
+  theming-fix:
+    plugin: nil
+    override-build: |
+      # Add data-dir mount layout to the snap as a temporary workaround until
+      # https://github.com/snapcore/snapd/pull/5395 lands in snapd.
+      mkdir -p $SNAPCRAFT_PART_INSTALL/data-dir/icons
+      mkdir -p $SNAPCRAFT_PART_INSTALL/data-dir/sounds
+      mkdir -p $SNAPCRAFT_PART_INSTALL/data-dir/themes
