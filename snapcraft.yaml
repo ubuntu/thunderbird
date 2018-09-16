@@ -19,6 +19,7 @@ apps:
       - desktop
       - desktop-legacy
       - gsettings
+      - gpg-keys
       - home
       - network
       - network-control
@@ -58,6 +59,7 @@ parts:
       - libgl1-mesa-glx
       - libmirclient9
       - desktop-file-utils
+      - gnupg2 #Needed for engimail extension
     organize:
       "snap/thunderbird/current/usr/*": usr/lib/thunderbird
     after: [desktop-gtk3]
