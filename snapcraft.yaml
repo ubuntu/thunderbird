@@ -60,6 +60,7 @@ parts:
       - libmirclient9
       - desktop-file-utils
       - gnupg2 #Needed for engimail extension
+      - gnupg-agent #Needed for engimail extension
     organize:
       "snap/thunderbird/current/usr/*": usr/lib/thunderbird
     after: [desktop-gtk3]
