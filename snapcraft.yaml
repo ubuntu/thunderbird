@@ -31,6 +31,10 @@ apps:
       - x11
 
 plugs:
+  gnome-3-28-1804:
+    interface: content
+    target: $SNAP/gnome-platform
+    default-provider: gnome-3-28-1804
   browser-sandbox:
     interface: browser-support
     allow-sandbox: true
@@ -48,7 +52,7 @@ plugs:
     default-provider: gtk-common-themes
 
 parts:
-  desktop-gtk3:
+  desktop-gnome-platform:
     source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
     source-subdir: gtk
     plugin: make
@@ -56,25 +60,9 @@ parts:
     build-packages:
       - build-essential
       - libgtk-3-dev
-    stage-packages:
-      - libxkbcommon0  # XKB_CONFIG_ROOT
-      - ttf-ubuntu-font-family
-      - dmz-cursor-theme
-      - light-themes
-      - adwaita-icon-theme
-      - gnome-themes-standard
-      - shared-mime-info
-      - libgtk-3-0
-      - libgdk-pixbuf2.0-0
-      - libglib2.0-bin
-      - libgtk-3-bin
-      - unity-gtk3-module
-      - libappindicator3-1
-      - locales-all
-      - xdg-user-dirs
-      - ibus-gtk3
-      - libibus-1.0-5
-      - fcitx-frontend-gtk3        
+    override-build: |
+      snapcraftctl build
+      mkdir -pv $SNAPCRAFT_PART_INSTALL/gnome-platform
   thunderbird:
     plugin: dump
     source: https://archive.mozilla.org/pub/thunderbird/releases/60.6.1/linux-x86_64/en-US/thunderbird-60.6.1.tar.bz2
@@ -107,7 +95,7 @@ parts:
       - libncursesw5
     organize:
       "snap/thunderbird/current/usr/*": usr/lib/thunderbird
-    after: [desktop-gtk3]
+    after: [desktop-gnome-platform]
   magic:
     after: [thunderbird]
     plugin: nil
