@@ -1,9 +1,10 @@
 name: thunderbird
-version: 60.3.0
+version: 60.6.1
 summary: Mozilla Thunderbird email application
 description: Thunderbird is a free email application that’s easy to set up and customize - and it’s loaded with great features!
 confinement: strict
 grade: stable
+base: core18
 
 apps:
   thunderbird:
@@ -36,20 +37,20 @@ plugs:
   gtk-3-themes:
     interface: content
     target: $SNAP/data-dir/themes
-    default-provider: gtk-common-themes
+    default-provider: gtk-common-themes:gtk-3-themes
   icon-themes:
     interface: content
     target: $SNAP/data-dir/icons
-    default-provider: gtk-common-themes
+    default-provider: gtk-common-themes:icon-themes
   sound-themes:
     interface: content
     target: $SNAP/data-dir/sounds
-    default-provider: gtk-common-themes
+    default-provider: gtk-common-themes:sounds-themes
 
 parts:
   thunderbird:
     plugin: dump
-    source: https://archive.mozilla.org/pub/thunderbird/releases/60.3.0/linux-x86_64/en-US/thunderbird-60.3.0.tar.bz2
+    source: https://archive.mozilla.org/pub/thunderbird/releases/60.6.1/linux-x86_64/en-US/thunderbird-60.6.1.tar.bz2
     stage-packages:
       - libxt6
       - libdbus-glib-1-2
@@ -59,8 +60,24 @@ parts:
       - libgl1-mesa-glx
       - libmirclient9
       - desktop-file-utils
-      - gnupg2 #Needed for engimail extension
+      - gnupg #Needed for engimail extension
       - gnupg-agent #Needed for engimail extension
+      - libblkid1
+      - libgcc1
+      - libgcrypt20
+      - libgpg-error0
+      - liblzma5
+      - libmount1
+      - libpcre3
+      - libselinux1
+      - libsystemd0
+      - libudev1
+      - libuuid1
+      - zlib1g
+      - liblz4-1
+      - libstdc++6
+      - libtinfo5
+      - libncursesw5
     organize:
       "snap/thunderbird/current/usr/*": usr/lib/thunderbird
     after: [desktop-gtk3]
@@ -74,11 +91,3 @@ parts:
       set -eux
       mkdir -p $SNAPCRAFT_PART_INSTALL/usr/share/mime
       update-mime-database $SNAPCRAFT_PART_INSTALL/usr/share/mime
-  theming-fix:
-    plugin: nil
-    override-build: |
-      # Add data-dir mount layout to the snap as a temporary workaround until
-      # https://github.com/snapcore/snapd/pull/5395 lands in snapd.
-      mkdir -p $SNAPCRAFT_PART_INSTALL/data-dir/icons
-      mkdir -p $SNAPCRAFT_PART_INSTALL/data-dir/sounds
-      mkdir -p $SNAPCRAFT_PART_INSTALL/data-dir/themes
