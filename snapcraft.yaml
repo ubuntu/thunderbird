@@ -96,6 +96,10 @@ parts:
     organize:
       "snap/thunderbird/current/usr/*": usr/lib/thunderbird
     after: [desktop-gnome-platform]
+    override-build: |
+      snapcraftctl build
+      set -eux
+      cp -p $SNAPCRAFT_PROJECT_DIR/policies.json $SNAPCRAFT_PART_INSTALL/distribution
   magic:
     after: [thunderbird]
     plugin: nil
@@ -106,4 +110,3 @@ parts:
       set -eux
       mkdir -p $SNAPCRAFT_PART_INSTALL/usr/share/mime
       update-mime-database $SNAPCRAFT_PART_INSTALL/usr/share/mime
-      cp -p policies.json $SNAPCRAFT_PART_INSTALL/distribution
