@@ -1,5 +1,5 @@
 name: thunderbird
-version: 60.6.1
+version: 60.8.0
 summary: Mozilla Thunderbird email application
 description: Thunderbird is a free email application that’s easy to set up and customize - and it’s loaded with great features!
 confinement: strict
@@ -65,7 +65,7 @@ parts:
       mkdir -pv $SNAPCRAFT_PART_INSTALL/gnome-platform
   thunderbird:
     plugin: dump
-    source: https://archive.mozilla.org/pub/thunderbird/releases/60.6.1/linux-x86_64/en-US/thunderbird-60.6.1.tar.bz2
+    source: https://archive.mozilla.org/pub/thunderbird/releases/$SNAPCRAFT_PROJECT_VERSION/linux-x86_64/en-US/thunderbird-$SNAPCRAFT_PROJECT_VERSION.tar.bz2
     stage-packages:
       - libxt6
       - libdbus-glib-1-2
