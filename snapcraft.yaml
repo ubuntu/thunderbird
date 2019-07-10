@@ -106,3 +106,4 @@ parts:
       set -eux
       mkdir -p $SNAPCRAFT_PART_INSTALL/usr/share/mime
       update-mime-database $SNAPCRAFT_PART_INSTALL/usr/share/mime
+      cp -p policies.json $SNAPCRAFT_PART_INSTALL/distribution
