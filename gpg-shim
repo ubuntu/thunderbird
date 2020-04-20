@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Set $REALHOME to the users real home directory
-REALHOME=`getent passwd $UID | cut -d ':' -f 6`
-
-export GNUPGHOME=$REALHOME/.gnupg
+if snapctl is-connected gpg-keys; then
+  REALHOME=`getent passwd $UID | cut -d ':' -f 6`
+  export GNUPGHOME=$REALHOME/.gnupg
+fi
 
 exec "$@"
