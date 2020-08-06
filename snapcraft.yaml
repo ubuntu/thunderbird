@@ -66,6 +66,8 @@ parts:
   thunderbird:
     plugin: dump
     source: https://archive.mozilla.org/pub/thunderbird/releases/$SNAPCRAFT_PROJECT_VERSION/linux-x86_64/en-US/thunderbird-$SNAPCRAFT_PROJECT_VERSION.tar.bz2
+    build-packages:
+      - curl
     stage-packages:
       - libxt6
       - libdbus-glib-1-2
@@ -99,7 +101,8 @@ parts:
     override-build: |
       snapcraftctl build
       set -eux
-      cp -p $SNAPCRAFT_PROJECT_DIR/policies.json $SNAPCRAFT_PART_INSTALL/distribution
+      cp -pr $SNAPCRAFT_PROJECT_DIR/distribution $SNAPCRAFT_PART_INSTALL
+      for locale in de es fr it pt-PT pt-BR ru zh-CN; do curl -o "$SNAPCRAFT_PART_INSTALL/distribution/extensions/langpack-$locale@thunderbird.mozilla.org.xpi" "https://releases.mozilla.org/pub/thunderbird/releases/$SNAPCRAFT_PROJECT_VERSION/linux-x86_64/xpi/$locale.xpi"; done
       mkdir -p $SNAPCRAFT_PART_INSTALL/bin/
       cp -p $SNAPCRAFT_PROJECT_DIR/gpg-shim $SNAPCRAFT_PART_INSTALL/bin/
   magic:
