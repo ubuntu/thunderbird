@@ -58,6 +58,7 @@ parts:
       snapcraftctl build
       set -eux
       cp -pr $SNAPCRAFT_PROJECT_DIR/distribution $SNAPCRAFT_PART_INSTALL
+      mkdir $SNAPCRAFT_PART_INSTALL/distribution/extensions
       for locale in de es-ES fr it ja pt-PT pt-BR ru zh-CN; do curl -o "$SNAPCRAFT_PART_INSTALL/distribution/extensions/langpack-$locale@thunderbird.mozilla.org.xpi" "https://releases.mozilla.org/pub/thunderbird/releases/$SNAPCRAFT_PROJECT_VERSION/linux-x86_64/xpi/$locale.xpi"; done
       mkdir -p $SNAPCRAFT_PART_INSTALL/bin/
       cp -p $SNAPCRAFT_PROJECT_DIR/gpg-shim $SNAPCRAFT_PART_INSTALL/bin/
