@@ -27,6 +27,7 @@ apps:
       - network-control
       - opengl
       - audio-playback
+      - removable-media
 
 plugs:
   browser-sandbox:
