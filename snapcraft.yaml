@@ -33,6 +33,9 @@ plugs:
   browser-sandbox:
     interface: browser-support
     allow-sandbox: true
+  etc-thunderbird-policies:
+    interface: system-files
+    read: [/etc/thunderbird/policies]
 
 parts:
   thunderbird:
