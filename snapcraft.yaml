@@ -45,11 +45,12 @@ parts:
       - curl
     stage-packages:
       - desktop-file-utils
-      - gnupg #Needed for engimail extension
-      - gnupg-agent #Needed for engimail extension
+      - gnupg # Needed to use Thunderbird >78 with smartcards.
+      - gnupg-agent # Needed to use Thunderbird >78 with smartcards.
       - libblkid1
       - libgcrypt20
       - libgpg-error0
+      - libgpgme11 # Needed to use Thunderbird >78 with smartcards.
       - liblzma5
       - libudev1
       - libuuid1
