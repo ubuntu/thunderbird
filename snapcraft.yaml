@@ -4,13 +4,13 @@ summary: Mozilla Thunderbird email application
 description: Thunderbird is a free email application that’s easy to set up and customize - and it’s loaded with great features!
 confinement: strict
 grade: stable
-base: core18
+base: core20
 
 apps:
   thunderbird:
     command-chain: [ bin/gpg-shim, bin/tmpdir ]
     command: thunderbird-bin
-    extensions: [ gnome-3-34 ]
+    extensions: [ gnome-3-38 ]
     environment:
       DISABLE_WAYLAND: 1
       HOME: "$SNAP_USER_COMMON"
@@ -78,10 +78,10 @@ parts:
   cleanup:
     after: [thunderbird]
     plugin: nil
-    build-snaps: [core18, gnome-3-34-1804]
+    build-snaps: [core20, gnome-3-38-2004]
     override-prime: |
       set -eux
-      for snap in "core18" "gnome-3-34-1804"; do
+      for snap in "core20" "gnome-3-38-2004"; do
         cd "/snap/$snap/current" && find . -type f,l -exec rm -f "$SNAPCRAFT_PRIME/{}" \;
       done
 
