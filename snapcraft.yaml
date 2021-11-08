@@ -51,6 +51,7 @@ parts:
       - libgcrypt20
       - libgpg-error0
       - libgpgme11 # Needed to use Thunderbird >78 with smartcards.
+      - libpci3
       - liblzma5
       - libudev1
       - libuuid1
