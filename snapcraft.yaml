@@ -5,6 +5,7 @@ description: Thunderbird is a free email application that’s easy to set up and
 confinement: strict
 grade: stable
 base: core20
+compression: lzo
 
 apps:
   thunderbird:
