@@ -1,0 +1,37 @@
+name: New version check
+
+on:
+  schedule:
+    # 3 times a day should be enough
+    - cron: '07 7,15,23 * * *'
+  workflow_dispatch:
+
+jobs:
+  check-new-beta:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: beta
+      - name: Extract current version
+        id: extract-current-version
+        run: |
+          currentversion=$(sed -n 's/^version: "\(.*\)"$/\1/p' snapcraft.yaml)
+          echo "::set-output name=currentversion::$currentversion"
+      - name: Install python deps
+        run: sudo apt update && sudo apt install python3-lxml python3-packaging
+      - name: Fetch new version
+        id: fetch-new-version-beta
+        run: |
+          version=$(./.github/scripts/check-new-version.py beta ${{ steps.extract-current-version.outputs.currentversion }})
+          echo "::set-output name=version::$version"
+      - name: Update snapcraft.yaml with the new version
+        if: steps.fetch-new-version-beta.outputs.version
+        run: |
+          version=${{ steps.fetch-new-version-beta.outputs.version }}
+          sed -i "s/^version: \"\(.*\)\"$/version: \"$version\"/" snapcraft.yaml
+          git add snapcraft.yaml
+          git config user.name "Update Bot"
+          git config user.email "actions@github.com"
+          git commit -m "Update to $version."
+          git push
