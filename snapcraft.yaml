@@ -41,7 +41,11 @@ plugs:
 parts:
   thunderbird:
     plugin: dump
-    source: https://archive.mozilla.org/pub/thunderbird/releases/$SNAPCRAFT_PROJECT_VERSION/linux-x86_64/en-US/thunderbird-$SNAPCRAFT_PROJECT_VERSION.tar.bz2
+    override-pull: |
+      VERSION=$(echo $SNAPCRAFT_PROJECT_VERSION | cut -d- -f1)
+      BUILD=$(echo $SNAPCRAFT_PROJECT_VERSION | cut -d- -f2)
+      URL=https://ftp.mozilla.org/pub/thunderbird/candidates/$VERSION-candidates/build$BUILD
+      wget -O - $URL/linux-x86_64/en-US/thunderbird-$VERSION.tar.bz2 | tar -x -j --strip-components=1
     build-packages:
       - curl
     stage-packages:
