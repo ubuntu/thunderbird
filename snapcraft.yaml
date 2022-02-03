@@ -29,6 +29,7 @@ apps:
       - opengl
       - audio-playback
       - removable-media
+      - u2f-devices
 
 plugs:
   browser-sandbox:
