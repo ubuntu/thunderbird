@@ -110,7 +110,7 @@ X-MultipleArgs=false
 Type=Application
 Icon=${SNAP}/meta/gui/thunderbird.png
 Categories=Application;Network;Email;
-MimeType=x-scheme-handler/mailto;application/x-xpinstall;
+MimeType=x-scheme-handler/mailto;application/x-xpinstall;x-scheme-handler/webcal;x-scheme-handler/mid;message/rfc822;
 StartupNotify=true
 Actions=Compose;Contacts
 
