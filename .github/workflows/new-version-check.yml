@@ -23,7 +23,7 @@ jobs:
       - name: Fetch new version
         id: fetch-new-version-stable
         run: |
-          version=$(./.github/scripts/check-new-version.py stable ${{ steps.extract-current-version.outputs.currentversion }})
+          version=$(./.github/scripts/check-new-version.py release ${{ steps.extract-current-version.outputs.currentversion }})
           echo "::set-output name=version::$version"
       - name: Update snapcraft.yaml with the new version
         if: steps.fetch-new-version-stable.outputs.version
