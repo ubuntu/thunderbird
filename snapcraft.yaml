@@ -10,7 +10,7 @@ compression: lzo
 apps:
   thunderbird:
     command-chain: [ bin/gpg-shim, bin/tmpdir ]
-    command: thunderbird-bin
+    command: thunderbird.launcher
     extensions: [ gnome-3-38 ]
     environment:
       DISABLE_WAYLAND: 1
@@ -38,6 +38,9 @@ plugs:
   etc-thunderbird-policies:
     interface: system-files
     read: [/etc/thunderbird/policies]
+  dot-thunderbird:
+    interface: personal-files
+    read: [$HOME/.thunderbird]
 
 parts:
   thunderbird:
@@ -96,3 +99,8 @@ parts:
         cd "/snap/$snap/current" && find . -type f,l -exec rm -f "$SNAPCRAFT_PRIME/{}" \;
       done
 
+  launcher:
+    plugin: nil
+    override-prime: |
+      cp "$SNAPCRAFT_PROJECT_DIR/thunderbird.launcher" "$SNAPCRAFT_PRIME/"
+      cp "$SNAPCRAFT_PROJECT_DIR/patch-default-profile.py" "$SNAPCRAFT_PRIME/"
