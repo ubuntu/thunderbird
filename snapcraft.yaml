@@ -55,6 +55,7 @@ parts:
       - gnupg # Needed to use Thunderbird >78 with smartcards.
       - gnupg-agent # Needed to use Thunderbird >78 with smartcards.
       - libblkid1
+      - libcurl4 # Needed for the crash reporter (LP: #1983502)
       - libgcrypt20
       - libgpg-error0
       - libgpgme11 # Needed to use Thunderbird >78 with smartcards.
