@@ -30,6 +30,8 @@ apps:
       - audio-playback
       - removable-media
       - u2f-devices
+    slots:
+      - dbus-daemon
 
 plugs:
   browser-sandbox:
@@ -41,6 +43,12 @@ plugs:
   dot-thunderbird:
     interface: personal-files
     read: [$HOME/.thunderbird]
+
+slots:
+  dbus-daemon:
+    interface: dbus
+    bus: session
+    name: org.mozilla.thunderbird
 
 parts:
   thunderbird:
