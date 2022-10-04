@@ -30,6 +30,8 @@ apps:
       - audio-playback
       - removable-media
       - u2f-devices
+    slots:
+      - dbus-daemon
 
 plugs:
   browser-sandbox:
@@ -38,6 +40,12 @@ plugs:
   etc-thunderbird-policies:
     interface: system-files
     read: [/etc/thunderbird/policies]
+
+slots:
+  dbus-daemon:
+    interface: dbus
+    bus: session
+    name: org.mozilla.thunderbird
 
 parts:
   thunderbird:
