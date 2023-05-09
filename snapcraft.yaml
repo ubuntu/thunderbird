@@ -19,6 +19,7 @@ apps:
     plugs:
       - avahi-observe
       - browser-sandbox
+      - calendar-service
       - camera
       - cups-control
       - gsettings
