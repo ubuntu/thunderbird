@@ -4,14 +4,14 @@ summary: Mozilla Thunderbird email application
 description: Thunderbird is a free email application that’s easy to set up and customize - and it’s loaded with great features!
 confinement: strict
 grade: stable
-base: core20
+base: core22
 compression: lzo
 
 apps:
   thunderbird:
     command-chain: [ bin/gpg-shim, bin/tmpdir ]
     command: thunderbird.launcher
-    extensions: [ gnome-3-38 ]
+    extensions: [ gnome ]
     environment:
       DISABLE_WAYLAND: 1
       HOME: "$SNAP_USER_COMMON"
@@ -55,8 +55,8 @@ parts:
   thunderbird:
     plugin: nil
     override-pull: |
-      VERSION=$(echo $SNAPCRAFT_PROJECT_VERSION | cut -d- -f1)
-      BUILD=$(echo $SNAPCRAFT_PROJECT_VERSION | cut -d- -f2)
+      VERSION=$(echo $(craftctl get version) | cut -d- -f1)
+      BUILD=$(echo $(craftctl get version) | cut -d- -f2)
       URL=https://ftp.mozilla.org/pub/thunderbird/candidates/$VERSION-candidates/build$BUILD
       wget -O - $URL/linux-x86_64/en-US/thunderbird-$VERSION.tar.bz2 | tar -x -j --strip-components=1
     build-packages:
@@ -79,18 +79,18 @@ parts:
     organize:
       "snap/thunderbird/current/usr/*": usr/lib/thunderbird
     override-build: |
-      VERSION=$(echo $SNAPCRAFT_PROJECT_VERSION | cut -d- -f1)
-      BUILD=$(echo $SNAPCRAFT_PROJECT_VERSION | cut -d- -f2)
+      VERSION=$(echo $(craftctl get version) | cut -d- -f1)
+      BUILD=$(echo $(craftctl get version) | cut -d- -f2)
       XPIURL=https://ftp.mozilla.org/pub/thunderbird/candidates/$VERSION-candidates/build$BUILD/linux-x86_64/xpi
-      snapcraftctl build
+      craftctl default
       set -eux
-      cp -pr $SNAPCRAFT_PROJECT_DIR/distribution $SNAPCRAFT_PART_INSTALL
-      mkdir $SNAPCRAFT_PART_INSTALL/distribution/extensions
-      for locale in de es-ES fr it ja pt-PT pt-BR ru zh-CN; do curl -o "$SNAPCRAFT_PART_INSTALL/distribution/extensions/langpack-$locale@thunderbird.mozilla.org.xpi" "$XPIURL/$locale.xpi"; done
-      mkdir -p $SNAPCRAFT_PART_INSTALL/bin/
-      cp -p $SNAPCRAFT_PROJECT_DIR/gpg-shim $SNAPCRAFT_PART_INSTALL/bin/
-      cp -p $SNAPCRAFT_PROJECT_DIR/tmpdir $SNAPCRAFT_PART_INSTALL/bin/
-      cp -pr $SNAPCRAFT_PART_SRC/* $SNAPCRAFT_PART_INSTALL
+      cp -pr $CRAFT_PROJECT_DIR/distribution $CRAFT_PART_INSTALL
+      mkdir $CRAFT_PART_INSTALL/distribution/extensions
+      for locale in de es-ES fr it ja pt-PT pt-BR ru zh-CN; do curl -o "$CRAFT_PART_INSTALL/distribution/extensions/langpack-$locale@thunderbird.mozilla.org.xpi" "$XPIURL/$locale.xpi"; done
+      mkdir -p $CRAFT_PART_INSTALL/bin/
+      cp -p $CRAFT_PROJECT_DIR/gpg-shim $CRAFT_PART_INSTALL/bin/
+      cp -p $CRAFT_PROJECT_DIR/tmpdir $CRAFT_PART_INSTALL/bin/
+      cp -pr $CRAFT_PART_SRC/* $CRAFT_PART_INSTALL
     prime: 
       - -usr/lib/*/libgio*
       - -usr/lib/*/libglib*
@@ -101,15 +101,15 @@ parts:
   cleanup:
     after: [thunderbird]
     plugin: nil
-    build-snaps: [core20, gnome-3-38-2004]
+    build-snaps: [core22, gnome-42-2204]
     override-prime: |
       set -eux
-      for snap in "core20" "gnome-3-38-2004"; do
-        cd "/snap/$snap/current" && find . -type f,l -exec rm -f "$SNAPCRAFT_PRIME/{}" \;
+      for snap in "core22" "gnome-42-2204"; do
+        cd "/snap/$snap/current" && find . -type f,l -exec rm -f "$CRAFT_PRIME/{}" \;
       done
 
   launcher:
     plugin: nil
     override-prime: |
-      cp "$SNAPCRAFT_PROJECT_DIR/thunderbird.launcher" "$SNAPCRAFT_PRIME/"
-      cp "$SNAPCRAFT_PROJECT_DIR/patch-default-profile.py" "$SNAPCRAFT_PRIME/"
+      cp "$CRAFT_PROJECT_DIR/thunderbird.launcher" "$CRAFT_PRIME/"
+      cp "$CRAFT_PROJECT_DIR/patch-default-profile.py" "$CRAFT_PRIME/"
