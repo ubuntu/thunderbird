@@ -1,5 +1,5 @@
 name: thunderbird
-version: "118.0b4-1"
+version: "118.0b5-1"
 summary: Mozilla Thunderbird email application
 description: Thunderbird is a free email application that’s easy to set up and customize - and it’s loaded with great features!
 confinement: strict
