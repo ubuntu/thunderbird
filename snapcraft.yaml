@@ -1,3 +1,17 @@
+# Copyright (C) Canonical Ltd.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3, as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 name: thunderbird
 version: "123.0b1-1"
 summary: Mozilla Thunderbird email application
@@ -11,10 +25,10 @@ apps:
   thunderbird:
     command-chain: [ bin/gpg-shim, bin/tmpdir ]
     command: thunderbird.launcher
-    extensions: [ gnome ]
+    extensions: [gnome]
     environment:
-      HOME: "$SNAP_USER_COMMON"
       GTK_USE_PORTAL: 1
+      HOME: "$SNAP_USER_COMMON"
     plugs:
       - avahi-observe
       - browser-sandbox
@@ -44,23 +58,161 @@ plugs:
     interface: personal-files
     read: [$HOME/.thunderbird]
 
-slots:
-  dbus-daemon:
-    interface: dbus
-    bus: session
-    name: org.mozilla.thunderbird
-
 parts:
+  rust:
+    plugin: nil
+    build-packages:
+      - wget
+    override-pull: |
+      # Do not use rustup to work around https://forum.snapcraft.io/t/armhf-builds-on-launchpad-timing-out/31008
+      REQUIRED_RUST_VERSION=1.70.0
+      ROOT=https://static.rust-lang.org/dist/rust-$REQUIRED_RUST_VERSION
+      if [ $CRAFT_TARGET_ARCH = "amd64" ]; then
+        BINARIES_SUFFIX=x86_64-unknown-linux-gnu
+      elif [ $CRAFT_TARGET_ARCH = "armhf" ]; then
+        BINARIES_SUFFIX=armv7-unknown-linux-gnueabihf
+      elif [ $CRAFT_TARGET_ARCH = "arm64" ]; then
+        BINARIES_SUFFIX=aarch64-unknown-linux-gnu
+      fi
+      wget -O - $ROOT-$BINARIES_SUFFIX.tar.gz | tar -x -z --strip-components=1
+      ./install.sh --prefix=/usr --destdir=$CRAFT_STAGE
+    override-prime: ''
+
+  cbindgen:
+    plugin: nil
+    after:
+      - rust
+    override-build: |
+      craftctl default
+      cargo install cbindgen
+    override-prime: ''
+  mozconfig:
+    plugin: nil
+    override-stage: |
+      cp $CRAFT_PROJECT_DIR/mozconfig.in $CRAFT_STAGE/mozconfig
+    override-prime: ''
+
+  # Launchpad builders have a timeout for how long they are allowed to access
+  # the internet (through a proxy) starting from the start of the build.
+  # Since the thunderbird part takes a long time to build, we need to ensure
+  # that all other parts that need to access the internet (to e.g. fetch build
+  # or stage packages) are built before it (before the proxy authentication is
+  # revoked).
   thunderbird:
     plugin: nil
-    override-pull: |
-      VERSION=$(echo $(craftctl get version) | cut -d- -f1)
-      BUILD=$(echo $(craftctl get version) | cut -d- -f2)
-      URL=https://ftp.mozilla.org/pub/thunderbird/candidates/$VERSION-candidates/build$BUILD
-      wget -O - $URL/linux-x86_64/en-US/thunderbird-$VERSION.tar.bz2 | tar -x -j --strip-components=1
+    after:
+      - cbindgen
+      - mozconfig
+      - thunderbird-langpacks
     build-packages:
-      - curl
+      - cargo
+      - clang-15
+      - cmake
+      - coreutils
+      - file
+      - git
+      - libasound2-dev
+      - libclang-15-dev
+      - libdbus-glib-1-dev
+      - llvm-15-dev
+      - libpython3-dev
+      - libx11-xcb-dev
+      - libxt-dev
+      - m4
+      - make
+      - nasm
+      - nodejs
+      - quilt
+      - rustc
+      - unzip
       - wget
+      - xvfb
+      - zip
+    override-pull: |
+      VERSION=$(craftctl get version | cut -d- -f1)
+      BUILD=$(craftctl get version | cut -d- -f2)
+      ROOT=https://ftp.mozilla.org/pub/thunderbird/candidates/$VERSION-candidates/build$BUILD
+      wget -O - $ROOT/source/thunderbird-$VERSION.source.tar.xz | tar -x --xz --strip-components=1
+      #mkdir -p $CRAFT_STAGE/debug-symbols
+      #cp toolkit/crashreporter/tools/upload_symbols.py $CRAFT_STAGE/debug-symbols/
+    override-build: |
+      craftctl default
+      export MOZCONFIG="$CRAFT_STAGE/mozconfig"
+      QUILT_PATCHES=$CRAFT_PROJECT_DIR/patches quilt push -a
+      GNOME_SDK_SNAP=/snap/gnome-42-2204-sdk/current
+      if [ $CRAFT_TARGET_ARCH = "amd64" ]; then
+        # "clang -dumpmachine" returns "x86_64-unknown-linux-gnu" on
+        # amd64 (at least the binaries they distribute), but what we
+        # really need is "x86_64-pc-linux-gnu"; so let's hard-code it.
+        export TARGET_TRIPLET="x86_64-pc-linux-gnu"
+      else
+        export TARGET_TRIPLET=$(clang -dumpmachine)
+      fi
+      export LDFLAGS="-Wl,-rpath-link=$GNOME_SDK_SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_ON -Wl,-rpath-link=$GNOME_SDK_SNAP/usr/lib"
+      export LDFLAGS="-Wl,-rpath-link=$CRAFT_PART_BUILD/obj-$TARGET_TRIPLET/dist/bin${LDFLAGS:+ $LDFLAGS}"
+      export LD_LIBRARY_PATH="$CRAFT_PART_BUILD/obj-$TARGET_TRIPLET/dist/bin${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+      export MOZBUILD_STATE_PATH=$CRAFT_PART_BUILD/.mozbuild
+      unset PYTHONPATH
+      if [ $CRAFT_TARGET_ARCH = "amd64" ]; then
+        # Needed for PGO-enabled builds that execute the built binaries. This should mirror the link paths in $LDFLAGS.
+        export LD_LIBRARY_PATH="$GNOME_SDK_SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_ON:$GNOME_SDK_SNAP/usr/lib"
+        # Ensure the instrumented binary is run against the right version of libssl3.so and libnss3.so
+        # (locally-built versions are more recent than the ones in the gnome platform snap)
+        export LD_LIBRARY_PATH="$CRAFT_PART_BUILD/obj-$TARGET_TRIPLET/instrumented/dist/bin${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+      fi
+      export PATH=$PATH:/usr/lib/llvm-15/bin/
+      MACH="/usr/bin/python3 ./mach"
+      $MACH configure --prefix=$CRAFT_PART_INSTALL/usr
+      $MACH uniffi generate # workaround for https://bugzilla.mozilla.org/1797714
+      $MACH build -j$CRAFT_PARALLEL_BUILD_COUNT
+      $MACH install
+      DISTRIBUTION=$CRAFT_PART_INSTALL/usr/lib/thunderbird/distribution
+      mkdir -p $DISTRIBUTION/extensions
+      mkdir -p $CRAFT_PART_INSTALL/bin/
+      cp -p $CRAFT_PROJECT_DIR/gpg-shim $CRAFT_PART_INSTALL/bin/
+      cp -p $CRAFT_PROJECT_DIR/tmpdir $CRAFT_PART_INSTALL/bin/
+      cp -pr $CRAFT_PART_SRC/* $CRAFT_PART_INSTALL
+    override-stage: |
+      # Workaround for LP: #2016358: create mount points for the gnome
+      # content interface, while a proper fix is implemented in snapd.
+      # Thanks to James Henstridge.
+      mkdir $CRAFT_PART_INSTALL/{gnome-platform,data-dir,data-dir/{icons,sounds,themes}}
+      craftctl default
+    prime:
+      - bin
+      - usr/lib/thunderbird
+      # Workaround for LP: #2016358 (see the 'override-stage' above).
+      - gnome-platform
+      - data-dir/icons
+      - data-dir/sounds
+      - data-dir/themes
+
+  thunderbird-langpacks:
+    plugin: nil
+    build-packages:
+      - coreutils
+      - sed
+      - wget
+    override-pull: |
+      VERSION=$(craftctl get version | cut -d- -f1)
+      BUILD=$(craftctl get version | cut -d- -f2)
+      SERVER=https://ftp.mozilla.org
+      ROOT=$SERVER/pub/thunderbird/candidates/$VERSION-candidates/build$BUILD
+      XPIS=$(wget -O - $ROOT/linux-x86_64/xpi/ | sed -n 's/.* href="\(.*\.xpi\)".*/\1/p')
+      for XPI in $XPIS; do
+        wget $SERVER$XPI
+      done
+    override-prime: |
+      INSTALLDIR=$CRAFT_PRIME/usr/lib/thunderbird/distribution/extensions
+      mkdir -p $INSTALLDIR
+      for XPI in $(ls $CRAFT_PART_SRC/*.xpi); do
+        LANGCODE=$(basename $XPI .xpi)
+        mkdir $INSTALLDIR/locale-$LANGCODE
+        cp $XPI $INSTALLDIR/locale-$LANGCODE/langpack-$LANGCODE@thunderbird.mozilla.org.xpi
+      done
+
+  thunderbird-staged:
+    plugin: nil
     stage-packages:
       - desktop-file-utils
       - gnupg # Needed to use Thunderbird >78 with smartcards.
@@ -75,25 +227,16 @@ parts:
       - zlib1g
       - liblz4-1
       - libxt6
-    organize:
-      "snap/thunderbird/current/usr/*": usr/lib/thunderbird
-    override-build: |
-      VERSION=$(echo $(craftctl get version) | cut -d- -f1)
-      BUILD=$(echo $(craftctl get version) | cut -d- -f2)
-      XPIURL=https://ftp.mozilla.org/pub/thunderbird/candidates/$VERSION-candidates/build$BUILD/linux-x86_64/xpi
-      craftctl default
-      set -eux
-      cp -pr $CRAFT_PROJECT_DIR/distribution $CRAFT_PART_INSTALL
-      mkdir $CRAFT_PART_INSTALL/distribution/extensions
-      for locale in de es-ES fr it ja pt-PT pt-BR ru zh-CN; do curl -o "$CRAFT_PART_INSTALL/distribution/extensions/langpack-$locale@thunderbird.mozilla.org.xpi" "$XPIURL/$locale.xpi"; done
-      mkdir -p $CRAFT_PART_INSTALL/bin/
-      cp -p $CRAFT_PROJECT_DIR/gpg-shim $CRAFT_PART_INSTALL/bin/
-      cp -p $CRAFT_PROJECT_DIR/tmpdir $CRAFT_PART_INSTALL/bin/
-      cp -pr $CRAFT_PART_SRC/* $CRAFT_PART_INSTALL
-    prime: 
+    prime:
       - -usr/lib/*/libgio*
       - -usr/lib/*/libglib*
       - -usr/lib/*/libgm*
+
+  launcher:
+    plugin: nil
+    override-prime: |
+      cp "$CRAFT_PROJECT_DIR/thunderbird.launcher" "$CRAFT_PRIME/"
+      cp "$CRAFT_PROJECT_DIR/patch-default-profile.py" "$CRAFT_PRIME/"
 
   # Find files provided by the base and platform snap and ensure they aren't
   # duplicated in this snap
@@ -107,8 +250,8 @@ parts:
         cd "/snap/$snap/current" && find . -type f,l -exec rm -f "$CRAFT_PRIME/{}" \;
       done
 
-  launcher:
-    plugin: nil
-    override-prime: |
-      cp "$CRAFT_PROJECT_DIR/thunderbird.launcher" "$CRAFT_PRIME/"
-      cp "$CRAFT_PROJECT_DIR/patch-default-profile.py" "$CRAFT_PRIME/"
+slots:
+  dbus-daemon:
+    interface: dbus
+    bus: session
+    name: org.mozilla.thunderbird
