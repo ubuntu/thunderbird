@@ -1,0 +1,15 @@
+# Lower nodejs requirement to 12.22.9 to meet the version available in jammy
+
+diff -r 01a38986e94b python/mozbuild/mozbuild/nodeutil.py
+--- a/python/mozbuild/mozbuild/nodeutil.py
++++ b/python/mozbuild/mozbuild/nodeutil.py
+@@ -11,7 +11,7 @@
+ from packaging.version import Version
+ from six import PY3
+ 
+-NODE_MIN_VERSION = Version("12.22.12")
++NODE_MIN_VERSION = Version("12.22.9")
+ NPM_MIN_VERSION = Version("6.14.16")
+ 
+ 
+

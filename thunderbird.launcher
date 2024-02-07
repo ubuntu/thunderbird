@@ -42,4 +42,4 @@ fi
 [ -z "$MOZ_ENABLE_WAYLAND" ] && export MOZ_ENABLE_WAYLAND=0
 unset GDK_BACKEND
 
-exec "$SNAP/thunderbird-bin" "$@"
+exec "$SNAP/usr/lib/thunderbird/thunderbird-bin" "$@"
