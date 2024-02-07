@@ -135,8 +135,6 @@ parts:
       wget -O - $ROOT/source/thunderbird-$VERSION.source.tar.xz | tar -x --xz --strip-components=1
       #mkdir -p $CRAFT_STAGE/debug-symbols
       #cp toolkit/crashreporter/tools/upload_symbols.py $CRAFT_STAGE/debug-symbols/
-      export MOZCONFIG="$CRAFT_STAGE/mozconfig"
-      echo "ac_add_options --prefix=$CRAFT_PART_INSTALL/usr" >> $MOZCONFIG
     override-build: |
       craftctl default
       export MOZCONFIG="$CRAFT_STAGE/mozconfig"
@@ -164,6 +162,7 @@ parts:
       fi
       export PATH=$PATH:/usr/lib/llvm-15/bin/
       MACH="/usr/bin/python3 ./mach"
+      $MACH configure --prefix=$CRAFT_PART_INSTALL/usr
       $MACH build -j$CRAFT_PARALLEL_BUILD_COUNT
       $MACH install
       DISTRIBUTION=$CRAFT_PART_INSTALL/usr/lib/thunderbird/distribution
