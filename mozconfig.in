@@ -8,3 +8,4 @@ ac_add_options --disable-tests
 ac_add_options --without-wasm-sandboxed-libraries
 ac_add_options CC=clang-15
 ac_add_options CXX=clang++-15
+ac_add_options MOZ_TELEMETRY_REPORTING=
