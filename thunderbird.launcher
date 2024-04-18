@@ -19,7 +19,7 @@ if [ ! -d "$SNAPDOT" ]; then
       printf '%s\n' "Importing existing thunderbird profiles from $HOMEDOT"
       TS1=$(date +%s.%3N)
       mkdir -p "$SNAPDOT"
-      cp -R "$HOMEDOT"/* "$SNAPDOT/"
+      cp -a "$HOMEDOT"/* "$SNAPDOT/"
       # Search and replace absolute file paths in plain-text config files.
       find "$SNAPDOT" \( -name "pkcs11.txt" -o -name "extensions.json" \) \
           -exec sed -i "s#$HOMEDOT#$SNAPDOT#g" {} \;
