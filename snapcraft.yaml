@@ -65,7 +65,7 @@ parts:
       - wget
     override-pull: |
       # Do not use rustup to work around https://forum.snapcraft.io/t/armhf-builds-on-launchpad-timing-out/31008
-      REQUIRED_RUST_VERSION=1.74.0
+      REQUIRED_RUST_VERSION=1.78.0
       ROOT=https://static.rust-lang.org/dist/rust-$REQUIRED_RUST_VERSION
       if [ $CRAFT_TARGET_ARCH = "amd64" ]; then
         BINARIES_SUFFIX=x86_64-unknown-linux-gnu
