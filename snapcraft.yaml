@@ -18,7 +18,7 @@ summary: Mozilla Thunderbird email application
 description: Thunderbird is a free email application that’s easy to set up and customize - and it’s loaded with great features!
 confinement: strict
 grade: stable
-base: core22
+base: core24
 compression: lzo
 contact: https://www.thunderbird.net/contact/
 donation: https://www.thunderbird.net/donate/
@@ -70,11 +70,11 @@ parts:
       # Do not use rustup to work around https://forum.snapcraft.io/t/armhf-builds-on-launchpad-timing-out/31008
       REQUIRED_RUST_VERSION=1.78.0
       ROOT=https://static.rust-lang.org/dist/rust-$REQUIRED_RUST_VERSION
-      if [ $CRAFT_TARGET_ARCH = "amd64" ]; then
+      if [ $CRAFT_ARCH_BUILD_FOR = "amd64" ]; then
         BINARIES_SUFFIX=x86_64-unknown-linux-gnu
-      elif [ $CRAFT_TARGET_ARCH = "armhf" ]; then
+      elif [ $CRAFT_ARCH_BUILD_FOR = "armhf" ]; then
         BINARIES_SUFFIX=armv7-unknown-linux-gnueabihf
-      elif [ $CRAFT_TARGET_ARCH = "arm64" ]; then
+      elif [ $CRAFT_ARCH_BUILD_FOR = "arm64" ]; then
         BINARIES_SUFFIX=aarch64-unknown-linux-gnu
       fi
       wget -O - $ROOT-$BINARIES_SUFFIX.tar.gz | tar -x -z --strip-components=1
@@ -142,8 +142,8 @@ parts:
       craftctl default
       export MOZCONFIG="$CRAFT_STAGE/mozconfig"
       QUILT_PATCHES=$CRAFT_PROJECT_DIR/patches quilt push -a
-      GNOME_SDK_SNAP=/snap/gnome-42-2204-sdk/current
-      if [ $CRAFT_TARGET_ARCH = "amd64" ]; then
+      GNOME_SDK_SNAP=/snap/gnome-46-2404-sdk/current
+      if [ $CRAFT_ARCH_BUILD_FOR = "amd64" ]; then
         # "clang -dumpmachine" returns "x86_64-unknown-linux-gnu" on
         # amd64 (at least the binaries they distribute), but what we
         # really need is "x86_64-pc-linux-gnu"; so let's hard-code it.
@@ -156,7 +156,7 @@ parts:
       export LD_LIBRARY_PATH="$CRAFT_PART_BUILD/obj-$TARGET_TRIPLET/dist/bin${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
       export MOZBUILD_STATE_PATH=$CRAFT_PART_BUILD/.mozbuild
       unset PYTHONPATH
-      if [ $CRAFT_TARGET_ARCH = "amd64" ]; then
+      if [ $CRAFT_ARCH_BUILD_FOR = "amd64" ]; then
         # Needed for PGO-enabled builds that execute the built binaries. This should mirror the link paths in $LDFLAGS.
         export LD_LIBRARY_PATH="$GNOME_SDK_SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_ON:$GNOME_SDK_SNAP/usr/lib"
         # Ensure the instrumented binary is run against the right version of libssl3.so and libnss3.so
@@ -247,10 +247,10 @@ parts:
   cleanup:
     after: [thunderbird]
     plugin: nil
-    build-snaps: [core22, gnome-42-2204]
+    build-snaps: [core24, gnome-46-2404]
     override-prime: |
       set -eux
-      for snap in "core22" "gnome-42-2204"; do
+      for snap in "core24" "gnome-46-2404"; do
         cd "/snap/$snap/current" && find . -type f,l -exec rm -f "$CRAFT_PRIME/{}" \;
       done
 
