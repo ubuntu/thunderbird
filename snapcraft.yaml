@@ -21,7 +21,7 @@ grade: stable
 base: core22
 compression: lzo
 contact: https://www.thunderbird.net/contact/
-donate: https://www.thunderbird.net/donate/
+donation: https://www.thunderbird.net/donate/
 issues: https://bugzilla.mozilla.org/enter_bug.cgi?product=Thunderbird&op_sys=Linux&keywords=snap
 website: https://www.thunderbird.net/
 
