@@ -13,7 +13,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 name: thunderbird
-version: "128.0esr-3"
+version: "128.0esr"
 summary: Mozilla Thunderbird email application
 description: Thunderbird is a free email application that’s easy to set up and customize - and it’s loaded with great features!
 confinement: strict
@@ -133,9 +133,9 @@ parts:
       - zip
     override-pull: |
       VERSION=$(craftctl get version | cut -d- -f1)
-      BUILD=$(craftctl get version | cut -d- -f2)
-      ROOT=https://ftp.mozilla.org/pub/thunderbird/candidates/$VERSION-candidates/build$BUILD
-      wget -O - $ROOT/source/thunderbird-$VERSION.source.tar.xz | tar -x --xz --strip-components=1
+      #BUILD=$(craftctl get version | cut -d- -f2)
+      ROOT=https://ftp.mozilla.org/pub/thunderbird/releases/$VERSION
+      wget -O - $ROOT/linux-x86_64/en-US/thunderbird-$VERSION.source.tar.xz | tar -x --xz --strip-components=1
       #mkdir -p $CRAFT_STAGE/debug-symbols
       #cp toolkit/crashreporter/tools/upload_symbols.py $CRAFT_STAGE/debug-symbols/
     override-build: |
