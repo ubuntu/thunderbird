@@ -1,6 +1,6 @@
 ac_add_options --enable-project=comm/mail
 ac_add_options --enable-release
-ac_add_options --enable-update-channel=release
+ac_add_options --enable-update-channel=esr
 ac_add_options --enable-crashreporter
 ac_add_options --enable-official-branding
 ac_add_options --disable-updater
