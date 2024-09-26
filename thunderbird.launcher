@@ -2,39 +2,11 @@
 
 REALHOME=$(getent passwd $(id -u) | cut -d ':' -f 6)
 
-# When running the snap for the first time, try and locate an existing
-# thunderbird config in $HOME/.thunderbird and import it.
-# This requires the personal-files plug to be connected.
-# This is a stopgap measure until proper profile migration is implemented
-# in thunderbird.
+# Keep using profile in ~/.thunderbird if it is there by symlinking to it.
 SNAPDOT="$SNAP_USER_COMMON/.thunderbird"
-if [ ! -d "$SNAPDOT" ]; then
-  HOMEDOT="$REALHOME/.thunderbird"
-  if [ -r "$HOMEDOT/profiles.ini" ]; then
-    SIZE=$(du -sb "$HOMEDOT" | cut -f 1)
-    AVAILABLE_BLOCKS=$(stat -f -c %a "$SNAP_USER_COMMON")
-    BLOCK_SIZE=$(stat -f -c %s "$SNAP_USER_COMMON")
-    AVAILABLE_SIZE=$(($AVAILABLE_BLOCKS * $BLOCK_SIZE))
-    if [ "$AVAILABLE_SIZE" -gt "$SIZE" ]; then
-      printf '%s\n' "Importing existing thunderbird profiles from $HOMEDOT"
-      TS1=$(date +%s.%3N)
-      mkdir -p "$SNAPDOT"
-      cp -a "$HOMEDOT"/* "$SNAPDOT/"
-      # Search and replace absolute file paths in plain-text config files.
-      find "$SNAPDOT" \( -name "pkcs11.txt" -o -name "extensions.json" \) \
-          -exec sed -i "s#$HOMEDOT#$SNAPDOT#g" {} \;
-      # Patch the imported profiles to set the default one for use by the snap
-      # (legacy mode, no dedicated profiles).
-      $SNAP/patch-default-profile.py "$SNAPDOT/profiles.ini"
-      TS2=$(date +%s.%3N)
-      T=$(printf '%s' "$TS1 $TS2" | awk '{printf "%.3f",$2-$1}')
-      printf '%s\n' "Import done in $T s"
-    else
-      printf '%s\n' "Not importing existing firefox profiles from $HOMEDOT "
-          "because there is not enough available space in $SNAP_USER_COMMON "
-          "(required: $SIZE bytes / available: $AVAILABLE_SIZE bytes)"
-    fi
-  fi
+HOMEDOT="$REALHOME/.thunderbird"
+if [ ! -d "$SNAPDOT" ] && [ -r "$HOMEDOT/profiles.ini" ]; then
+      ln -s "$HOMEDOT" "$SNAPDOT"
 fi
 
 # Default to XWayland until native Wayland support is properly tested

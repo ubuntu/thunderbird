@@ -63,6 +63,7 @@ plugs:
   dot-thunderbird:
     interface: personal-files
     read: [$HOME/.thunderbird]
+    write: [$HOME/.thunderbird]
   host-usr-share-hunspell:
     interface: system-files
     read: [/var/lib/snapd/hostfs/usr/share/hunspell]
