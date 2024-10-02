@@ -167,7 +167,8 @@ parts:
       MACH="/usr/bin/python3 ./mach"
       $MACH configure --prefix=$CRAFT_PART_INSTALL/usr
       $MACH uniffi generate # workaround for https://bugzilla.mozilla.org/1797714
-      $MACH build -j$CRAFT_PARALLEL_BUILD_COUNT
+      # TODO: use $CRAFT_PARALLEL_BUILD_COUNT again once https://github.com/canonical/snapcraft/issues/4785 is fixed
+      $MACH build -j8
       $MACH install
       DISTRIBUTION=$CRAFT_PART_INSTALL/usr/lib/thunderbird/distribution
       mkdir -p $DISTRIBUTION/extensions
