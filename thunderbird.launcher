@@ -37,9 +37,4 @@ if [ ! -d "$SNAPDOT" ]; then
   fi
 fi
 
-# Default to XWayland until native Wayland support is properly tested
-# (see https://bugzilla.mozilla.org/show_bug.cgi?id=1725245)
-[ -z "$MOZ_ENABLE_WAYLAND" ] && export MOZ_ENABLE_WAYLAND=0
-unset GDK_BACKEND
-
 exec "$SNAP/usr/lib/thunderbird/thunderbird-bin" "$@"
