@@ -1,1 +1,2 @@
 relax-nodejs-dep.patch
+disable-rust-lto.patch

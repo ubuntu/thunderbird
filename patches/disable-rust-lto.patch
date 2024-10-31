@@ -1,0 +1,14 @@
+Workaround for LP builders having only 6GB+4GB (RAM+SWAP) and https://bugzilla.mozilla.org/show_bug.cgi?id=1927328
+
+diff --git a/config/makefiles/rust.mk b/config/makefiles/rust.mk
+index d0f52d6c1b..0a1df7069b 100644
+--- a/config/makefiles/rust.mk
++++ b/config/makefiles/rust.mk
+@@ -92,7 +92,6 @@ ifndef rustflags_sancov
+ # Never enable when coverage is enabled to work around https://github.com/rust-lang/rust/issues/90045.
+ ifndef MOZ_CODE_COVERAGE
+ ifeq (,$(findstring gkrust_gtest,$(RUST_LIBRARY_FILE)))
+-cargo_rustc_flags += -Clto$(if $(filter full,$(MOZ_LTO_RUST_CROSS)),=fat)
+ endif
+ # We need -Cembed-bitcode=yes for all crates when using -Clto.
+ RUSTFLAGS += -Cembed-bitcode=yes
