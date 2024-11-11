@@ -13,7 +13,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 name: thunderbird
-version: "128.4.2esr-1"
+version: "128.4.3esr-1"
 summary: Mozilla Thunderbird email application
 description: Thunderbird is a free email application that’s easy to set up and customize - and it’s loaded with great features!
 confinement: strict
@@ -31,6 +31,7 @@ apps:
     command: thunderbird.launcher
     extensions: [gnome]
     environment:
+      DICPATH: "$SNAP_COMMON/snap-hunspell"
       GTK_USE_PORTAL: 1
       HOME: "$SNAP_USER_COMMON"
     plugs:
@@ -41,6 +42,7 @@ apps:
       - gsettings
       - gpg-keys
       - home
+      - host-usr-share-hunspell
       - network
       - network-control
       - opengl
@@ -60,6 +62,9 @@ plugs:
   dot-thunderbird:
     interface: personal-files
     read: [$HOME/.thunderbird]
+  host-usr-share-hunspell:
+    interface: system-files
+    read: [/var/lib/snapd/hostfs/usr/share/hunspell]
 
 parts:
   rust:
@@ -260,3 +265,6 @@ slots:
     interface: dbus
     bus: session
     name: org.mozilla.thunderbird
+hooks:
+  post-refresh:
+    plugs: [host-usr-share-hunspell]
