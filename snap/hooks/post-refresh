@@ -26,7 +26,7 @@ DICPATH=$SNAP_COMMON/snap-hunspell
 if [ -d "$DICPATH" ]; then
     # Clean up on each refresh to ensure we have an up-to-date list
     # of host dictionaries.
-    find "$DICPATH" -type l -name "*.dic" -or -name "*.aff" -exec rm {} + || true
+    find "$DICPATH" -type l \( -name "*.dic" -or -name "*.aff" \) -exec rm {} + || true
 else
     mkdir -p "$DICPATH"
 fi
