@@ -51,6 +51,10 @@ fi
 for dic in $(find $host_hunspell/ -name "*.dic"); do
     dic_file=$(basename $dic)
     aff_file="${dic_file%%.dic}.aff"
-    ln -s $SNAP/usr/share/hunspell/${dic_file} $DICPATH/${dic_file}
-    ln -s $SNAP/usr/share/hunspell/${aff_file} $DICPATH/${aff_file}
+    # Some dic,aff files in hunspell are themselves symlinks to other files,
+    # e.g. /usr/share/hunspell/fr_CH.dic -> fr.dic.
+    # That extra level of indirection somehow breaks spell checking.
+    # We therefore use readlink to link to the "real" file, not to a symlink.
+    ln -s "$(readlink -e $SNAP/usr/share/hunspell/${dic_file})" $DICPATH/${dic_file}
+    ln -s "$(readlink -e $SNAP/usr/share/hunspell/${aff_file})" $DICPATH/${aff_file}
 done
