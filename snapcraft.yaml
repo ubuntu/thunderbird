@@ -70,6 +70,25 @@ plugs:
     read: [/var/lib/snapd/hostfs/usr/share/hunspell]
 
 parts:
+  # This is a temporary workaround to including the hunspell content
+  # snap, which would cause breakage in the Ubuntu desktop image build
+  # because of the Ubuntu policy.  See:
+  # https://bugzilla.mozilla.org/show_bug.cgi?id=1792006
+  #
+  # The definition of this part is essentially a copy of the
+  # corresponding part in hunspell-dictionaries-1-7-2004 by
+  # Buo-ren, Lin.
+  hunspell:
+    plugin: nil
+    override-build: |
+      set -eu
+      craftctl default
+      apt download $(apt-cache search '^hunspell-.*$' |
+        awk '!/myspell|dbgsym|tools|transitional|dependency/{printf "%s ", $1}')
+      find . -name "*.deb" -exec dpkg-deb -x {} "$CRAFT_PART_INSTALL" \;
+    prime:
+      - usr/share/hunspell
+
   rust:
     plugin: nil
     build-packages:
