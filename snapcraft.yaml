@@ -56,9 +56,9 @@ plugs:
   browser-sandbox:
     interface: browser-support
     allow-sandbox: true
-  etc-thunderbird-policies:
+  etc-thunderbird:
     interface: system-files
-    read: [/etc/thunderbird/policies]
+    read: [/etc/thunderbird]
   dot-thunderbird:
     interface: personal-files
     read: [$HOME/.thunderbird]
