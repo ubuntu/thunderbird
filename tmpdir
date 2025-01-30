@@ -1,6 +1,12 @@
 #!/bin/bash
 
-# Set TMPDIR to be under the user's default Downloads dir
-export TMPDIR=$(xdg-user-dir DOWNLOAD)/thunderbird.tmp
+# If TMPDIR is not set or is not a valid directory, use ~/Downloads
+if [ -z "$TMPDIR" ] || [ ! -d "$TMPDIR" ]; then
+    TMPDIR="$(xdg-user-dir DOWNLOAD)"
+fi
 
+# Always ensure TMPDIR has /thunderbird.tmp appended
+TMPDIR="$TMPDIR/thunderbird.tmp"
+
+export TMPDIR
 exec "$@"
