@@ -6,7 +6,6 @@ if [ -z "$TMPDIR" ] || [ ! -d "$TMPDIR" ]; then
 fi
 
 # Always ensure TMPDIR has /thunderbird.tmp appended
-TMPDIR="$TMPDIR/thunderbird.tmp"
+export TMPDIR="$TMPDIR/thunderbird.tmp"
 
-export TMPDIR
 exec "$@"
