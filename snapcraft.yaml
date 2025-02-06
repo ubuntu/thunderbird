@@ -108,6 +108,39 @@ parts:
       ./install.sh --prefix=/usr --destdir=$CRAFT_STAGE
     override-prime: ''
 
+  # For thunderbird beta, the dump-syms git informations is pulled from the
+  # mozilla-beta trees, because there seems to be no mozilla/ in the beta tree,
+  dump-syms:
+    plugin: nil
+    after:
+      - rust
+    build-packages:
+      - curl
+      - git
+      - jq
+      - python3-yaml
+    override-pull: |
+      if [ $CRAFT_ARCH_BUILD_FOR = "amd64" ] || [ $CRAFT_ARCH_BUILD_FOR = "arm64" ]; then
+        VERSION=$(craftctl get version | cut -d- -f1)
+        BUILD=$(craftctl get version | cut -d- -f2)
+        FFINFO=$(curl -s https://ftp.mozilla.org/pub/firefox/candidates/$VERSION-candidates/build$BUILD/linux-x86_64/en-US/firefox-$VERSION.json)
+        MOZ_SOURCE_REPO=$(echo $FFINFO | jq -r .moz_source_repo)
+        MOZ_SOURCE_STAMP=$(echo $FFINFO | jq -r .moz_source_stamp)
+        FETCHES=$MOZ_SOURCE_REPO/raw-file/$MOZ_SOURCE_STAMP/taskcluster/kinds/fetch/toolchains.yml
+        TOOLCHAINS=$(curl -sSL "${FETCHES}")
+        unset PYTHONPATH
+        REPO=$(echo "${TOOLCHAINS}" | /usr/bin/python3 -c 'import yaml, sys; fetches = yaml.safe_load(sys.stdin); print("{}".format(fetches["dump-syms"]["fetch"]["repo"]))')
+        SHA1=$(echo "${TOOLCHAINS}" | /usr/bin/python3 -c 'import yaml, sys; fetches = yaml.safe_load(sys.stdin); print("{}".format(fetches["dump-syms"]["fetch"]["revision"]))')
+        git clone "${REPO}" . && git checkout "${SHA1}"
+      fi
+    override-build: |
+      craftctl default
+      if [ $CRAFT_ARCH_BUILD_FOR = "amd64" ] || [ $CRAFT_ARCH_BUILD_FOR = "arm64" ]; then
+        $CRAFT_STAGE/usr/bin/cargo build --release
+        mkdir -p $CRAFT_STAGE/usr/bin/
+        cp target/release/dump_syms $CRAFT_STAGE/usr/bin/
+      fi
+
   cbindgen:
     plugin: nil
     after:
@@ -132,7 +165,9 @@ parts:
     plugin: nil
     after:
       - cbindgen
+      - dump-syms
       - mozconfig
+      - rust
       - thunderbird-langpacks
     build-packages:
       - cargo
@@ -163,10 +198,11 @@ parts:
       BUILD=$(craftctl get version | cut -d- -f2)
       ROOT=https://ftp.mozilla.org/pub/thunderbird/candidates/$VERSION-candidates/build$BUILD
       wget -O - $ROOT/source/thunderbird-$VERSION.source.tar.xz | tar -x --xz --strip-components=1
-      #mkdir -p $CRAFT_STAGE/debug-symbols
-      #cp toolkit/crashreporter/tools/upload_symbols.py $CRAFT_STAGE/debug-symbols/
+      mkdir -p $CRAFT_STAGE/debug-symbols
+      cp toolkit/crashreporter/tools/upload_symbols.py $CRAFT_STAGE/debug-symbols/
     override-build: |
       craftctl default
+      export PATH=$CRAFT_STAGE/usr/bin:/usr/lib/llvm-15/bin/:$PATH
       export MOZCONFIG="$CRAFT_STAGE/mozconfig"
       QUILT_PATCHES=$CRAFT_PROJECT_DIR/patches quilt push -a
       GNOME_SDK_SNAP=/snap/gnome-46-2404-sdk/current
@@ -190,7 +226,12 @@ parts:
         # (locally-built versions are more recent than the ones in the gnome platform snap)
         export LD_LIBRARY_PATH="$CRAFT_PART_BUILD/obj-$TARGET_TRIPLET/instrumented/dist/bin${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
       fi
-      export PATH=$PATH:/usr/lib/llvm-15/bin/
+      BUILD_DBGSYMS=true
+      if [ $BUILD_DBGSYMS = "true" ]; then
+        echo "ac_add_options --enable-debug-symbols" >> $MOZCONFIG
+      else
+        echo "ac_add_options --disable-debug-symbols" >> $MOZCONFIG
+      fi
       MACH="/usr/bin/python3 ./mach"
       $MACH configure --prefix=$CRAFT_PART_INSTALL/usr
       $MACH build -j$CRAFT_PARALLEL_BUILD_COUNT
@@ -201,6 +242,12 @@ parts:
       cp -p $CRAFT_PROJECT_DIR/gpg-shim $CRAFT_PART_INSTALL/bin/
       cp -p $CRAFT_PROJECT_DIR/tmpdir $CRAFT_PART_INSTALL/bin/
       cp -pr $CRAFT_PART_SRC/* $CRAFT_PART_INSTALL
+      if [ $BUILD_DBGSYMS = "true" ]; then
+        DUMP_SYMS=$CRAFT_STAGE/usr/bin/dump_syms $MACH buildsymbols
+      fi
+      if [ $BUILD_DBGSYMS = "true" ]; then
+        cp obj-*/dist/thunderbird-*.crashreporter-symbols.zip $CRAFT_STAGE/debug-symbols/
+      fi
     override-stage: |
       # Workaround for LP: #2016358: create mount points for the gnome
       # content interface, while a proper fix is implemented in snapd.
@@ -260,6 +307,19 @@ parts:
       - -usr/lib/*/libgio*
       - -usr/lib/*/libglib*
       - -usr/lib/*/libgm*
+
+  debug-symbols:
+    plugin: nil
+    build-packages:
+      - python3
+      - python3-virtualenv
+    after:
+      - thunderbird
+    override-build: |
+      export SYMBOLS_ARCHIVE=$(find $CRAFT_STAGE/debug-symbols/ -type f -name "thunderbird-*.crashreporter-symbols.zip")
+      if [ -f "$SYMBOLS_ARCHIVE" ]; then
+        cp $SYMBOLS_ARCHIVE $CRAFT_PROJECT_DIR/$CRAFT_PROJECT_NAME_$(craftctl get version)_$CRAFT_ARCH_BUILD_FOR.debug
+      fi
 
   launcher:
     plugin: nil
