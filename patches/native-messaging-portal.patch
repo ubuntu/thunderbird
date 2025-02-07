@@ -1,0 +1,13 @@
+diff --git a/modules/libpref/init/StaticPrefList.yaml b/modules/libpref/init/StaticPrefList.yaml
+index 022bbb64125ce..e90ad2e1f15d1 100644
+--- a/modules/libpref/init/StaticPrefList.yaml
++++ b/modules/libpref/init/StaticPrefList.yaml
+@@ -17586,7 +17586,7 @@
+ #  - 2: auto (true for snap and flatpak or GTK_USE_PORTAL=1, false otherwise)
+ - name: widget.use-xdg-desktop-portal.native-messaging
+   type: int32_t
+-  value: 0
++  value: 2
+   mirror: always
+
+ # Whether to try to use XDG portal for settings / look-and-feel information.
