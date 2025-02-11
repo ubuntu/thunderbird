@@ -55,6 +55,10 @@ for dic in $(find $host_hunspell/ -name "*.dic"); do
     # e.g. /usr/share/hunspell/fr_CH.dic -> fr.dic.
     # That extra level of indirection somehow breaks spell checking.
     # We therefore use readlink to link to the "real" file, not to a symlink.
-    ln -s "$(readlink -e $SNAP/usr/share/hunspell/${dic_file})" $DICPATH/${dic_file}
-    ln -s "$(readlink -e $SNAP/usr/share/hunspell/${aff_file})" $DICPATH/${aff_file}
+    if [ -e "$SNAP/usr/share/hunspell/${dic_file}" ]; then
+        ln -s "$(readlink -e $SNAP/usr/share/hunspell/${dic_file})" $DICPATH/${dic_file}
+    fi
+    if [ -e "$SNAP/usr/share/hunspell/${aff_file}" ]; then
+        ln -s "$(readlink -e $SNAP/usr/share/hunspell/${aff_file})" $DICPATH/${aff_file}
+    fi
 done
