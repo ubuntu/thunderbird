@@ -120,9 +120,13 @@ parts:
       if [ $CRAFT_ARCH_BUILD_FOR = "amd64" ] || [ $CRAFT_ARCH_BUILD_FOR = "arm64" ]; then
         VERSION=$(craftctl get version | cut -d- -f1)
         BUILD=$(craftctl get version | cut -d- -f2)
-        FFINFO=$(curl -s https://ftp.mozilla.org/pub/firefox/candidates/$VERSION-candidates/build$BUILD/linux-x86_64/en-US/firefox-$VERSION.json)
-        MOZ_SOURCE_REPO=$(echo $FFINFO | jq -r .moz_source_repo)
-        MOZ_SOURCE_STAMP=$(echo $FFINFO | jq -r .moz_source_stamp)
+        TBINFO=$(curl -s https://ftp.mozilla.org/pub/thunderbird/candidates/$VERSION-candidates/build$BUILD/linux-x86_64/en-US/thunderbird-$VERSION.json)
+        TB_SOURCE_REPO=$(echo $TBINFO | jq -r .moz_source_repo)
+        TB_SOURCE_STAMP=$(echo $TBINFO | jq -r .moz_source_stamp)
+        GECKO_REV=$TB_SOURCE_REPO/raw-file/${TB_SOURCE_STAMP}/.gecko_rev.yml
+        GECKO_REVS=$(curl -sSL "${GECKO_REV}" | grep -v "#")
+        MOZ_SOURCE_REPO=$(echo "$GECKO_REVS" | grep GECKO_HEAD_REPOSITORY | sed -e 's/GECKO_HEAD_REPOSITORY: //g')
+        MOZ_SOURCE_STAMP=$(echo "$GECKO_REVS" | grep GECKO_HEAD_REV | sed -e 's/GECKO_HEAD_REV: //g')
         FETCHES=$MOZ_SOURCE_REPO/raw-file/$MOZ_SOURCE_STAMP/taskcluster/kinds/fetch/toolchains.yml
         TOOLCHAINS=$(curl -sSL "${FETCHES}")
         unset PYTHONPATH
