@@ -298,6 +298,7 @@ parts:
       - gnupg # Needed to use Thunderbird >78 with smartcards.
       - gnupg-agent # Needed to use Thunderbird >78 with smartcards.
       - libblkid1
+      - libecal-2.0-3 # Needed for EDS Calendar Integration extension.
       - libgcrypt20
       - libgpg-error0
       - libgpgme11 # Needed to use Thunderbird >78 with smartcards.
