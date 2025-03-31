@@ -103,6 +103,8 @@ parts:
         BINARIES_SUFFIX=armv7-unknown-linux-gnueabihf
       elif [ $CRAFT_ARCH_BUILD_FOR = "arm64" ]; then
         BINARIES_SUFFIX=aarch64-unknown-linux-gnu
+      elif [ $CRAFT_ARCH_BUILD_FOR = "riscv64" ]; then
+        BINARIES_SUFFIX=riscv64gc-unknown-linux-gnu
       fi
       wget -O - $ROOT-$BINARIES_SUFFIX.tar.gz | tar -x -z --strip-components=1
       ./install.sh --prefix=/usr --destdir=$CRAFT_STAGE
