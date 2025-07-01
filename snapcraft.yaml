@@ -13,7 +13,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 name: thunderbird
-version: "128.12.0esr-1"
+version: "140.0-1"
 summary: Mozilla Thunderbird email application
 description: Thunderbird is a free email application that’s easy to set up and customize - and it’s loaded with great features!
 confinement: strict
@@ -92,7 +92,7 @@ parts:
       - wget
     override-pull: |
       # Do not use rustup to work around https://forum.snapcraft.io/t/armhf-builds-on-launchpad-timing-out/31008
-      REQUIRED_RUST_VERSION=1.78.0
+      REQUIRED_RUST_VERSION=1.82.0
       ROOT=https://static.rust-lang.org/dist/rust-$REQUIRED_RUST_VERSION
       if [ $CRAFT_TARGET_ARCH = "amd64" ]; then
         BINARIES_SUFFIX=x86_64-unknown-linux-gnu
