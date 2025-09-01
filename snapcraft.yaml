@@ -15,7 +15,16 @@
 name: thunderbird
 version: "142.0b4-1"
 summary: Mozilla Thunderbird email application
-description: Thunderbird is a free email application that’s easy to set up and customize - and it’s loaded with great features!
+description: |
+  Thunderbird is a free email application that’s easy to set up and customize - and it’s loaded with great features!
+
+  The latest track for this snap provides the recommended upstream experience.
+
+  The esr track contains only extended supported releases.
+
+  The monthly track contains only releases of the monthly cadence cycle.
+
+  Read more about Thunderbird channels at https://developer.thunderbird.net/releases/channels.
 confinement: strict
 grade: stable
 base: core22
