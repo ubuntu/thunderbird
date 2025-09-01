@@ -301,7 +301,7 @@ parts:
       - gnupg-agent # Needed to use Thunderbird >78 with smartcards.
       - libblkid1
       - libcurl4 # Needed for the crash reporter (LP: #1983502)
-      - libecal-2.0-3 # Needed for EDS Calendar Integration extension.
+      - libecal-2.0-1 # Needed for EDS Calendar Integration extension.
       - libgcrypt20
       - libgpg-error0
       - libgpgme11 # Needed to use Thunderbird >78 with smartcards.
