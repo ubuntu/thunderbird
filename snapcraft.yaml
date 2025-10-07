@@ -220,6 +220,16 @@ parts:
       else
         export TARGET_TRIPLET=$(clang-20 -dumpmachine)
       fi
+      if [ $CRAFT_ARCH_BUILD_FOR != "riscv64" ]; then
+        BUILD_DBGSYMS=true
+        echo "ac_add_options --enable-crashreporter" >> $MOZCONFIG
+        echo "ac_add_options --enable-debug-symbols" >> $MOZCONFIG
+      else
+        # Crash reporter does not build in Risc-V:
+        # https://bugzilla.mozilla.org/show_bug.cgi?id=1980339
+        BUILD_DBGSYMS=false
+        echo "ac_add_options --disable-debug-symbols" >> $MOZCONFIG
+      fi
       export LDFLAGS="-Wl,-rpath-link=$GNOME_SDK_SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_ON -Wl,-rpath-link=$GNOME_SDK_SNAP/usr/lib"
       export LDFLAGS="-Wl,-rpath-link=$CRAFT_PART_BUILD/obj-$TARGET_TRIPLET/dist/bin${LDFLAGS:+ $LDFLAGS}"
       export LD_LIBRARY_PATH="$CRAFT_PART_BUILD/obj-$TARGET_TRIPLET/dist/bin${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
@@ -231,12 +241,6 @@ parts:
         # Ensure the instrumented binary is run against the right version of libssl3.so and libnss3.so
         # (locally-built versions are more recent than the ones in the gnome platform snap)
         export LD_LIBRARY_PATH="$CRAFT_PART_BUILD/obj-$TARGET_TRIPLET/instrumented/dist/bin${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-      fi
-      BUILD_DBGSYMS=true
-      if [ $BUILD_DBGSYMS = "true" ]; then
-        echo "ac_add_options --enable-debug-symbols" >> $MOZCONFIG
-      else
-        echo "ac_add_options --disable-debug-symbols" >> $MOZCONFIG
       fi
       MACH="/usr/bin/python3 ./mach"
       $MACH configure --prefix=$CRAFT_PART_INSTALL/usr
@@ -250,8 +254,6 @@ parts:
       cp -pr $CRAFT_PART_SRC/* $CRAFT_PART_INSTALL
       if [ $BUILD_DBGSYMS = "true" ]; then
         DUMP_SYMS=$CRAFT_STAGE/usr/bin/dump_syms $MACH buildsymbols
-      fi
-      if [ $BUILD_DBGSYMS = "true" ]; then
         cp obj-*/dist/thunderbird-*.crashreporter-symbols.zip $CRAFT_STAGE/debug-symbols/
       fi
     override-stage: |
