@@ -213,6 +213,10 @@ parts:
       export MOZCONFIG="$CRAFT_STAGE/mozconfig"
       QUILT_PATCHES=$CRAFT_PROJECT_DIR/patches quilt push -a
       GNOME_SDK_SNAP=/snap/gnome-46-2404-sdk/current
+      # XXX: Remove when the SDK finally builds reliably in Risc-V again.
+      if [ $CRAFT_ARCH_BUILD_FOR = "riscv64" ]; then
+        snap refresh --edge gnome-46-2404-sdk
+      fi
       if [ $CRAFT_ARCH_BUILD_FOR = "amd64" ]; then
         # "clang -dumpmachine" returns "x86_64-unknown-linux-gnu" on
         # amd64 (at least the binaries they distribute), but what we
