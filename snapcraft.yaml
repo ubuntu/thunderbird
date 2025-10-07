@@ -80,9 +80,9 @@ parts:
   # Buo-ren, Lin.
   hunspell:
     plugin: nil
-    override-build: |
-      set -eu
-      craftctl default
+    override-pull: |
+      set -eux
+      mkdir -p $CRAFT_PART_INSTALL
       apt download $(apt-cache search '^hunspell-.*$' |
         awk '!/myspell|dbgsym|tools|transitional|dependency/{printf "%s ", $1}')
       find . -name "*.deb" -exec dpkg-deb -x {} "$CRAFT_PART_INSTALL" \;
