@@ -181,15 +181,15 @@ parts:
       - thunderbird-langpacks
     build-packages:
       - cargo
-      - clang-20
+      - clang-17
       - cmake
       - coreutils
       - file
       - git
       - libasound2-dev
-      - libclang-20-dev
+      - libclang-17-dev
       - libdbus-glib-1-dev
-      - llvm-20-dev
+      - llvm-17-dev
       - libpython3-dev
       - libx11-xcb-dev
       - libxt-dev
@@ -212,7 +212,7 @@ parts:
       cp toolkit/crashreporter/tools/upload_symbols.py $CRAFT_STAGE/debug-symbols/
     override-build: |
       craftctl default
-      export PATH=$CRAFT_STAGE/usr/bin:/usr/lib/llvm-20/bin/:$PATH
+      export PATH=$CRAFT_STAGE/usr/bin:/usr/lib/llvm-17/bin/:$PATH
       export MOZCONFIG="$CRAFT_STAGE/mozconfig"
       QUILT_PATCHES=$CRAFT_PROJECT_DIR/patches quilt push -a
       GNOME_SDK_SNAP=/snap/gnome-42-2204-sdk/current
@@ -222,7 +222,7 @@ parts:
         # really need is "x86_64-pc-linux-gnu"; so let's hard-code it.
         export TARGET_TRIPLET="x86_64-pc-linux-gnu"
       else
-        export TARGET_TRIPLET=$(clang-20 -dumpmachine)
+        export TARGET_TRIPLET=$(clang-17 -dumpmachine)
       fi
       export LDFLAGS="-Wl,-rpath-link=$GNOME_SDK_SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_ON -Wl,-rpath-link=$GNOME_SDK_SNAP/usr/lib"
       export LDFLAGS="-Wl,-rpath-link=$CRAFT_PART_BUILD/obj-$TARGET_TRIPLET/dist/bin${LDFLAGS:+ $LDFLAGS}"
