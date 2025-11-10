@@ -205,6 +205,8 @@ parts:
       - wget
       - xvfb
       - zip
+    build-environment:
+      - RUST_BACKTRACE: 1
     override-pull: |
       VERSION=$(craftctl get version | cut -d- -f1)
       BUILD=$(craftctl get version | cut -d- -f2)
