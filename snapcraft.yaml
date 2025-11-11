@@ -208,6 +208,7 @@ parts:
     build-environment:
       - RUST_BACKTRACE: "full"
       - CARGO_PROFILE_RELEASE_BUILD_OVERRIDE_DEBUG: "true"
+      - NSS_DIR: "/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR"
     override-pull: |
       VERSION=$(craftctl get version | cut -d- -f1)
       BUILD=$(craftctl get version | cut -d- -f2)
