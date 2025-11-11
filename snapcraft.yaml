@@ -200,7 +200,7 @@ parts:
       - xvfb
       - zip
     build-environment:
-      - RUST_BACKTRACE: 1
+      - RUST_BACKTRACE: "full"
     override-pull: |
       VERSION=$(craftctl get version | cut -d- -f1)
       BUILD=$(craftctl get version | cut -d- -f2)
@@ -210,7 +210,6 @@ parts:
       cp toolkit/crashreporter/tools/upload_symbols.py $CRAFT_STAGE/debug-symbols/
     override-build: |
       craftctl default
-      export RUSTC_BACKTRACE=1
       export PATH=$CRAFT_STAGE/usr/bin:/usr/lib/llvm-20/bin/:$PATH
       export MOZCONFIG="$CRAFT_STAGE/mozconfig"
       QUILT_PATCHES=$CRAFT_PROJECT_DIR/patches quilt push -a
