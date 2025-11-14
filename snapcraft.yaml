@@ -13,12 +13,21 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 name: thunderbird
-version: "128.13.0esr-3"
+version: "145.0-2"
 summary: Mozilla Thunderbird email application
-description: Thunderbird is a free email application that’s easy to set up and customize - and it’s loaded with great features!
+description: |
+  Thunderbird is a free email application that’s easy to set up and customize - and it’s loaded with great features!
+
+  The latest track for this snap provides the recommended upstream experience.
+
+  The esr track contains only extended supported releases.
+
+  The monthly track contains only releases of the monthly cadence cycle.
+
+  Read more about Thunderbird channels at https://developer.thunderbird.net/releases/channels.
 confinement: strict
 grade: stable
-base: core22
+base: core24
 compression: lzo
 contact: https://www.thunderbird.net/contact/
 donation: https://www.thunderbird.net/donate/
@@ -77,9 +86,9 @@ parts:
   # Buo-ren, Lin.
   hunspell:
     plugin: nil
-    override-build: |
-      set -eu
-      craftctl default
+    override-pull: |
+      set -eux
+      mkdir -p $CRAFT_PART_INSTALL
       apt download $(apt-cache search '^hunspell-.*$' |
         awk '!/myspell|dbgsym|tools|transitional|dependency/{printf "%s ", $1}')
       find . -name "*.deb" -exec dpkg-deb -x {} "$CRAFT_PART_INSTALL" \;
@@ -92,14 +101,16 @@ parts:
       - wget
     override-pull: |
       # Do not use rustup to work around https://forum.snapcraft.io/t/armhf-builds-on-launchpad-timing-out/31008
-      REQUIRED_RUST_VERSION=1.78.0
+      REQUIRED_RUST_VERSION=1.82.0
       ROOT=https://static.rust-lang.org/dist/rust-$REQUIRED_RUST_VERSION
-      if [ $CRAFT_TARGET_ARCH = "amd64" ]; then
+      if [ $CRAFT_ARCH_BUILD_FOR = "amd64" ]; then
         BINARIES_SUFFIX=x86_64-unknown-linux-gnu
-      elif [ $CRAFT_TARGET_ARCH = "armhf" ]; then
+      elif [ $CRAFT_ARCH_BUILD_FOR = "armhf" ]; then
         BINARIES_SUFFIX=armv7-unknown-linux-gnueabihf
-      elif [ $CRAFT_TARGET_ARCH = "arm64" ]; then
+      elif [ $CRAFT_ARCH_BUILD_FOR = "arm64" ]; then
         BINARIES_SUFFIX=aarch64-unknown-linux-gnu
+      elif [ $CRAFT_ARCH_BUILD_FOR = "riscv64" ]; then
+        BINARIES_SUFFIX=riscv64gc-unknown-linux-gnu
       fi
       wget -O - $ROOT-$BINARIES_SUFFIX.tar.gz | tar -x -z --strip-components=1
       ./install.sh --prefix=/usr --destdir=$CRAFT_STAGE
@@ -172,15 +183,15 @@ parts:
       - thunderbird-langpacks
     build-packages:
       - cargo
-      - clang-15
+      - clang-20
       - cmake
       - coreutils
       - file
       - git
       - libasound2-dev
-      - libclang-15-dev
+      - libclang-20-dev
       - libdbus-glib-1-dev
-      - llvm-15-dev
+      - llvm-20-dev
       - libpython3-dev
       - libx11-xcb-dev
       - libxt-dev
@@ -194,6 +205,10 @@ parts:
       - wget
       - xvfb
       - zip
+    build-environment:
+      - RUST_BACKTRACE: "full"
+      - CARGO_PROFILE_RELEASE_BUILD_OVERRIDE_DEBUG: "true"
+      - NSS_DIR: "/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR"
     override-pull: |
       VERSION=$(craftctl get version | cut -d- -f1)
       BUILD=$(craftctl get version | cut -d- -f2)
@@ -203,35 +218,43 @@ parts:
       cp toolkit/crashreporter/tools/upload_symbols.py $CRAFT_STAGE/debug-symbols/
     override-build: |
       craftctl default
-      export PATH=$CRAFT_STAGE/usr/bin:/usr/lib/llvm-15/bin/:$PATH
+      export PATH=$CRAFT_STAGE/usr/bin:/usr/lib/llvm-20/bin/:$PATH
       export MOZCONFIG="$CRAFT_STAGE/mozconfig"
       QUILT_PATCHES=$CRAFT_PROJECT_DIR/patches quilt push -a
-      GNOME_SDK_SNAP=/snap/gnome-42-2204-sdk/current
-      if [ $CRAFT_TARGET_ARCH = "amd64" ]; then
+      GNOME_SDK_SNAP=/snap/gnome-46-2404-sdk/current
+      # XXX: Remove when the SDK finally builds reliably in Risc-V again.
+      if [ $CRAFT_ARCH_BUILD_FOR = "riscv64" ]; then
+        snap refresh --edge gnome-46-2404-sdk
+      fi
+      if [ $CRAFT_ARCH_BUILD_FOR = "amd64" ]; then
         # "clang -dumpmachine" returns "x86_64-unknown-linux-gnu" on
         # amd64 (at least the binaries they distribute), but what we
         # really need is "x86_64-pc-linux-gnu"; so let's hard-code it.
         export TARGET_TRIPLET="x86_64-pc-linux-gnu"
       else
-        export TARGET_TRIPLET=$(clang-15 -dumpmachine)
+        export TARGET_TRIPLET=$(clang-20 -dumpmachine)
+      fi
+      if [ $CRAFT_ARCH_BUILD_FOR != "riscv64" ]; then
+        BUILD_DBGSYMS=true
+        echo "ac_add_options --enable-crashreporter" >> $MOZCONFIG
+        echo "ac_add_options --enable-debug-symbols" >> $MOZCONFIG
+      else
+        # Crash reporter does not build in Risc-V:
+        # https://bugzilla.mozilla.org/show_bug.cgi?id=1980339
+        BUILD_DBGSYMS=false
+        echo "ac_add_options --disable-debug-symbols" >> $MOZCONFIG
       fi
       export LDFLAGS="-Wl,-rpath-link=$GNOME_SDK_SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_ON -Wl,-rpath-link=$GNOME_SDK_SNAP/usr/lib"
       export LDFLAGS="-Wl,-rpath-link=$CRAFT_PART_BUILD/obj-$TARGET_TRIPLET/dist/bin${LDFLAGS:+ $LDFLAGS}"
       export LD_LIBRARY_PATH="$CRAFT_PART_BUILD/obj-$TARGET_TRIPLET/dist/bin${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
       export MOZBUILD_STATE_PATH=$CRAFT_PART_BUILD/.mozbuild
       unset PYTHONPATH
-      if [ $CRAFT_TARGET_ARCH = "amd64" ]; then
+      if [ $CRAFT_ARCH_BUILD_FOR = "amd64" ]; then
         # Needed for PGO-enabled builds that execute the built binaries. This should mirror the link paths in $LDFLAGS.
         export LD_LIBRARY_PATH="$GNOME_SDK_SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_ON:$GNOME_SDK_SNAP/usr/lib"
         # Ensure the instrumented binary is run against the right version of libssl3.so and libnss3.so
         # (locally-built versions are more recent than the ones in the gnome platform snap)
         export LD_LIBRARY_PATH="$CRAFT_PART_BUILD/obj-$TARGET_TRIPLET/instrumented/dist/bin${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-      fi
-      BUILD_DBGSYMS=true
-      if [ $BUILD_DBGSYMS = "true" ]; then
-        echo "ac_add_options --enable-debug-symbols" >> $MOZCONFIG
-      else
-        echo "ac_add_options --disable-debug-symbols" >> $MOZCONFIG
       fi
       MACH="/usr/bin/python3 ./mach"
       $MACH configure --prefix=$CRAFT_PART_INSTALL/usr
@@ -246,8 +269,6 @@ parts:
       cp -pr $CRAFT_PART_SRC/* $CRAFT_PART_INSTALL
       if [ $BUILD_DBGSYMS = "true" ]; then
         DUMP_SYMS=$CRAFT_STAGE/usr/bin/dump_syms $MACH buildsymbols
-      fi
-      if [ $BUILD_DBGSYMS = "true" ]; then
         cp obj-*/dist/thunderbird-*.crashreporter-symbols.zip $CRAFT_STAGE/debug-symbols/
       fi
     override-stage: |
@@ -335,10 +356,10 @@ parts:
   cleanup:
     after: [thunderbird]
     plugin: nil
-    build-snaps: [core22, gnome-42-2204]
+    build-snaps: [core24, gnome-46-2404]
     override-prime: |
       set -eux
-      for snap in "core22" "gnome-42-2204"; do
+      for snap in "core24" "gnome-46-2404"; do
         cd "/snap/$snap/current" && find . -type f,l -exec rm -f "$CRAFT_PRIME/{}" \;
       done
 
