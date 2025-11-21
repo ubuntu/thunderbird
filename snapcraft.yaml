@@ -52,6 +52,7 @@ apps:
       - gpg-keys
       - home
       - host-usr-share-hunspell
+      - kerberos-tickets
       - network
       - network-control
       - opengl
