@@ -1,0 +1,2 @@
+#!/bin/sh
+HOME=$SNAP_REAL_HOME $SNAP/usr/bin/real-gpg "$@"

@@ -303,18 +303,29 @@ parts:
         cp $XPI $INSTALLDIR/locale-$LANGCODE/langpack-$LANGCODE@thunderbird.mozilla.org.xpi
       done
 
+  # Needed for smart card access
+  gnupg:
+    plugin: nil
+    stage-packages:
+      - gnupg
+      - gnupg-agent
+      - libgpgme11t64
+      - libgpg-error0
+    override-prime: |
+      craftctl default
+      # Fixes smart card key retrieval. Check LP: #2009825 and special thanks to
+      # https://forum.snapcraft.io/t/thunderbird-snap-and-external-gnupg-for-smart-cards/39553
+      mv $CRAFT_PRIME/usr/bin/gpg $CRAFT_PRIME/usr/bin/real-gpg
+      cp $CRAFT_PROJECT_DIR/gpg-wrapper $CRAFT_PRIME/usr/bin/gpg
+
   thunderbird-staged:
     plugin: nil
     stage-packages:
       - desktop-file-utils
-      - gnupg # Needed to use Thunderbird >78 with smartcards.
-      - gnupg-agent # Needed to use Thunderbird >78 with smartcards.
       - libblkid1
       - libcurl4 # Needed for the crash reporter (LP: #1983502)
       - libecal-2.0-3 # Needed for EDS Calendar Integration extension.
       - libgcrypt20
-      - libgpg-error0
-      - libgpgme11 # Needed to use Thunderbird >78 with smartcards.
       - liblzma5
       - libudev1
       - libuuid1
