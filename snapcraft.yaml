@@ -305,7 +305,7 @@ parts:
     stage-packages:
       - gnupg
       - gnupg-agent
-      - libgpgme11t64
+      - libgpgme11
       - libgpg-error0
     override-prime: |
       craftctl default
