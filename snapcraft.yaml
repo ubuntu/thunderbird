@@ -217,6 +217,14 @@ parts:
       wget -O - $ROOT/source/thunderbird-$VERSION.source.tar.xz | tar -x --xz --strip-components=1
       mkdir -p $CRAFT_STAGE/debug-symbols
       cp toolkit/crashreporter/tools/upload_symbols.py $CRAFT_STAGE/debug-symbols/
+      # Remove .gitmodules from Cargo checksums.
+      # https://bugzilla.mozilla.org/show_bug.cgi?id=2006630
+      find . -name '.cargo-checksum.json' -exec sh -c '
+        for f; do
+          cp "$f" "$f.bak"
+          jq . "$f.bak" | grep -vF .gitmodules > "$f"
+        done
+      ' _ {} + || :
     override-build: |
       craftctl default
       export PATH=$CRAFT_STAGE/usr/bin:/usr/lib/llvm-20/bin/:$PATH
