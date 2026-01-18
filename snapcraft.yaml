@@ -13,7 +13,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 name: thunderbird
-version: "145.0-2"
+version: "147.0-1"
 summary: Mozilla Thunderbird email application
 description: |
   Thunderbird is a free email application that’s easy to set up and customize - and it’s loaded with great features!
@@ -52,6 +52,7 @@ apps:
       - gpg-keys
       - home
       - host-usr-share-hunspell
+      - kerberos-tickets
       - network
       - network-control
       - opengl
@@ -216,6 +217,14 @@ parts:
       wget -O - $ROOT/source/thunderbird-$VERSION.source.tar.xz | tar -x --xz --strip-components=1
       mkdir -p $CRAFT_STAGE/debug-symbols
       cp toolkit/crashreporter/tools/upload_symbols.py $CRAFT_STAGE/debug-symbols/
+      # Remove .gitmodules from Cargo checksums.
+      # https://bugzilla.mozilla.org/show_bug.cgi?id=2006630
+      find . -name '.cargo-checksum.json' -exec sh -c '
+        for f; do
+          cp "$f" "$f.bak"
+          jq . "$f.bak" | grep -vF .gitmodules > "$f"
+        done
+      ' _ {} + || :
     override-build: |
       craftctl default
       export PATH=$CRAFT_STAGE/usr/bin:/usr/lib/llvm-20/bin/:$PATH
@@ -310,17 +319,28 @@ parts:
         cp $XPI $INSTALLDIR/locale-$LANGCODE/langpack-$LANGCODE@thunderbird.mozilla.org.xpi
       done
 
+  # Needed for smart card access
+  gnupg:
+    plugin: nil
+    stage-packages:
+      - gnupg
+      - gnupg-agent
+      - libgpgme11t64
+      - libgpg-error0
+    override-prime: |
+      craftctl default
+      # Fixes smart card key retrieval. Check LP: #2009825 and special thanks to
+      # https://forum.snapcraft.io/t/thunderbird-snap-and-external-gnupg-for-smart-cards/39553
+      mv $CRAFT_PRIME/usr/bin/gpg $CRAFT_PRIME/usr/bin/real-gpg
+      cp $CRAFT_PROJECT_DIR/gpg-wrapper $CRAFT_PRIME/usr/bin/gpg
+
   thunderbird-staged:
     plugin: nil
     stage-packages:
       - desktop-file-utils
-      - gnupg # Needed to use Thunderbird >78 with smartcards.
-      - gnupg-agent # Needed to use Thunderbird >78 with smartcards.
       - libblkid1
       - libcurl4 # Needed for the crash reporter (LP: #1983502)
       - libgcrypt20
-      - libgpg-error0
-      - libgpgme11 # Needed to use Thunderbird >78 with smartcards.
       - liblzma5
       - libudev1
       - libuuid1
