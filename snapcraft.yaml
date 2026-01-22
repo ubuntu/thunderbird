@@ -172,6 +172,7 @@ parts:
     plugin: nil
     after:
       - cbindgen
+      - distribution
       - dump-syms
       - mozconfig
       - rust
