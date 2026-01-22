@@ -334,6 +334,12 @@ parts:
       mv $CRAFT_PRIME/usr/bin/gpg $CRAFT_PRIME/usr/bin/real-gpg
       cp $CRAFT_PROJECT_DIR/gpg-wrapper $CRAFT_PRIME/usr/bin/gpg
 
+  distribution:
+    plugin: nil
+    override-prime: |
+      mkdir -p "$CRAFT_PRIME/usr/lib/thunderbird"
+      cp -Rv "$CRAFT_PROJECT_DIR/distribution" "$CRAFT_PRIME/usr/lib/thunderbird"
+
   thunderbird-staged:
     plugin: nil
     stage-packages:
