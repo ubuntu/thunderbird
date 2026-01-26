@@ -56,6 +56,7 @@ apps:
       - network
       - network-control
       - opengl
+      - pcscd
       - audio-playback
       - removable-media
       - u2f-devices
@@ -75,6 +76,10 @@ plugs:
   host-usr-share-hunspell:
     interface: system-files
     read: [/var/lib/snapd/hostfs/usr/share/hunspell]
+
+layout:
+  /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/opensc-pkcs11.so:
+    bind-file: $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/opensc-pkcs11.so
 
 parts:
   # This is a temporary workaround to including the hunspell content
@@ -287,9 +292,13 @@ parts:
       # Thanks to James Henstridge.
       mkdir $CRAFT_PART_INSTALL/{gnome-platform,data-dir,data-dir/{icons,sounds,themes}}
       craftctl default
+    stage-packages:
+      - opensc-pkcs11
     prime:
       - bin
       - usr/lib/thunderbird
+      - usr/lib/*/opensc-pkcs11.so
+      - usr/lib/*/pkcs11/opensc-pkcs11.so
       # Workaround for LP: #2016358 (see the 'override-stage' above).
       - gnome-platform
       - data-dir/icons
