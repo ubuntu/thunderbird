@@ -53,7 +53,6 @@ apps:
       - audio-playback
       - removable-media
       - u2f-devices
-      - unity7 # FIXME: remove once dbusmenu is allowed by desktop-legacy https://github.com/canonical/snapd/pull/14688
     slots:
       - dbus-daemon
 
