@@ -38,7 +38,7 @@ apps:
     plugs:
       - avahi-observe
       - browser-sandbox
-      - calendar-service
+      - calendar-service # Incomplete as per LP: #2018435
       - camera
       - cups-control
       - gsettings
