@@ -27,7 +27,7 @@ website: https://www.thunderbird.net/
 
 apps:
   thunderbird:
-    command-chain: [ bin/gpg-shim ]
+    command-chain: [ bin/gpg-shim, bin/tmpdir ]
     command: thunderbird.launcher
     extensions: [gnome]
     environment:
@@ -259,6 +259,7 @@ parts:
       mkdir -p $DISTRIBUTION/extensions
       mkdir -p $CRAFT_PART_INSTALL/bin/
       cp -p $CRAFT_PROJECT_DIR/gpg-shim $CRAFT_PART_INSTALL/bin/
+      cp -p $CRAFT_PROJECT_DIR/tmpdir $CRAFT_PART_INSTALL/bin/
       cp -pr $CRAFT_PART_SRC/* $CRAFT_PART_INSTALL
       if [ $BUILD_DBGSYMS = "true" ]; then
         DUMP_SYMS=$CRAFT_STAGE/usr/bin/dump_syms $MACH buildsymbols
