@@ -73,6 +73,8 @@ plugs:
 layout:
   /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/opensc-pkcs11.so:
     bind-file: $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/opensc-pkcs11.so
+  /usr/bin/gpg:
+    bind-file: $SNAP/usr/bin/gpg
 
 parts:
   # This is a temporary workaround to including the hunspell content
