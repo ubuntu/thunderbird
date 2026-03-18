@@ -185,15 +185,15 @@ parts:
       - thunderbird-langpacks
     build-packages:
       - cargo
-      - clang-15
+      - clang-20
       - cmake
       - coreutils
       - file
       - git
       - libasound2-dev
-      - libclang-15-dev
+      - libclang-20-dev
       - libdbus-glib-1-dev
-      - llvm-15-dev
+      - llvm-20-dev
       - libpython3-dev
       - libx11-xcb-dev
       - libxt-dev
@@ -227,7 +227,7 @@ parts:
       ' _ {} + || :
     override-build: |
       craftctl default
-      export PATH=$CRAFT_STAGE/usr/bin:/usr/lib/llvm-15/bin/:$PATH
+      export PATH=$CRAFT_STAGE/usr/bin:/usr/lib/llvm-20/bin/:$PATH
       export MOZCONFIG="$CRAFT_STAGE/mozconfig"
       QUILT_PATCHES=$CRAFT_PROJECT_DIR/patches quilt push -a
       GNOME_SDK_SNAP=/snap/gnome-46-2404-sdk/current
@@ -237,7 +237,7 @@ parts:
         # really need is "x86_64-pc-linux-gnu"; so let's hard-code it.
         export TARGET_TRIPLET="x86_64-pc-linux-gnu"
       else
-        export TARGET_TRIPLET=$(clang-15 -dumpmachine)
+        export TARGET_TRIPLET=$(clang-20 -dumpmachine)
       fi
       if [ $CRAFT_ARCH_BUILD_FOR != "riscv64" ]; then
         BUILD_DBGSYMS=true
