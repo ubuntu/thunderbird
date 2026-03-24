@@ -199,6 +199,7 @@ parts:
       - libxt-dev
       - m4
       - make
+      - mercurial
       - nasm
       - nodejs
       - quilt
