@@ -43,6 +43,7 @@ apps:
       DICPATH: "$SNAP_COMMON/snap-hunspell"
       GTK_USE_PORTAL: 1
       HOME: "$SNAP_USER_COMMON"
+      MOZ_APP_REMOTINGNAME: "thunderbird_thunderbird"
     plugs:
       - avahi-observe
       - browser-sandbox
