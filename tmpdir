@@ -1,6 +1,10 @@
 #!/bin/bash
 
-# Set TMPDIR to be under the user's default Downloads dir
-export TMPDIR=$(xdg-user-dir DOWNLOAD)/thunderbird.tmp
+# /tmp is per-snap-private under strict confinement, so attachments saved
+# there are invisible to host handlers and attachment-open silently fails
+# (bz 2015280). Relocate TMPDIR to $SNAP_USER_COMMON, which maps to
+# ~/snap/thunderbird/common/ on the host, reachable to external handlers.
+export TMPDIR="$SNAP_USER_COMMON/tmp"
+mkdir -p "$TMPDIR"
 
 exec "$@"
