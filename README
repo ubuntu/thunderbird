@@ -1,0 +1,9 @@
+This is the source code for the Thunderbird snap[1].
+
+For merge requests, please target the beta channel if you have no particular
+reason to do otherwise.
+
+Builds are in Launchpad[2].
+
+[1]https://snapcraft.io/thunderbird
+[2]https://launchpad.net/~desktop-snappers/+snaps
