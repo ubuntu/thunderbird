@@ -283,7 +283,7 @@ parts:
       # Workaround for LP: #2016358: create mount points for the gnome
       # content interface, while a proper fix is implemented in snapd.
       # Thanks to James Henstridge.
-      mkdir $CRAFT_PART_INSTALL/{gnome-platform,data-dir,data-dir/{icons,sounds,themes}}
+      mkdir $CRAFT_PART_INSTALL/{gpu-2404,data-dir,data-dir/{icons,sounds,themes}}
       craftctl default
     stage-packages:
       - opensc-pkcs11
@@ -293,7 +293,7 @@ parts:
       - usr/lib/*/opensc-pkcs11.so
       - usr/lib/*/pkcs11/opensc-pkcs11.so
       # Workaround for LP: #2016358 (see the 'override-stage' above).
-      - gnome-platform
+      - gpu-2404
       - data-dir/icons
       - data-dir/sounds
       - data-dir/themes
