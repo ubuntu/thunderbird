@@ -1,0 +1,13 @@
+  File "/build/thunderbird/parts/thunderbird/build/comm/build/moz.configure/gecko_source.configure", line 54, in get_sourcestamp
+    log.warn("sourcestamp.txt is corrupt!")
+    ^^^^^^^^
+AttributeError: 'ReadOnlyNamespace' object has no attribute 'warn'
+
+--- a/comm/build/moz.configure/gecko_source.configure
++++ b/comm/build/moz.configure/gecko_source.configure
+@@ -51,5 +51,4 @@
+ 
+             if len(lines) != 3:
+-                log.warn("sourcestamp.txt is corrupt!")
+                 return
+ 
