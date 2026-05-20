@@ -96,31 +96,12 @@ parts:
     prime:
       - usr/share/hunspell
 
-  rust:
-    plugin: nil
-    build-packages:
-      - wget
-    override-pull: |
-      REQUIRED_RUST_VERSION=1.90.0
-      ROOT=https://static.rust-lang.org/dist/rust-$REQUIRED_RUST_VERSION
-      if [ $CRAFT_ARCH_BUILD_FOR = "amd64" ]; then
-        BINARIES_SUFFIX=x86_64-unknown-linux-gnu
-      elif [ $CRAFT_ARCH_BUILD_FOR = "arm64" ]; then
-        BINARIES_SUFFIX=aarch64-unknown-linux-gnu
-      elif [ $CRAFT_ARCH_BUILD_FOR = "riscv64" ]; then
-        BINARIES_SUFFIX=riscv64gc-unknown-linux-gnu
-      fi
-      wget -O - $ROOT-$BINARIES_SUFFIX.tar.gz | tar -x -z --strip-components=1
-      ./install.sh --prefix=/usr --destdir=$CRAFT_STAGE
-    override-prime: ''
-
   # For thunderbird beta, the dump-syms git informations is pulled from the
   # mozilla-beta trees, because there seems to be no mozilla/ in the beta tree,
   dump-syms:
     plugin: nil
-    after:
-      - rust
     build-packages:
+      - cargo-1.91
       - curl
       - git
       - jq
@@ -146,19 +127,20 @@ parts:
     override-build: |
       craftctl default
       if [ $CRAFT_ARCH_BUILD_FOR = "amd64" ] || [ $CRAFT_ARCH_BUILD_FOR = "arm64" ]; then
-        $CRAFT_STAGE/usr/bin/cargo build --release
+        cargo-1.91 build --release
         mkdir -p $CRAFT_STAGE/usr/bin/
         cp target/release/dump_syms $CRAFT_STAGE/usr/bin/
       fi
 
   cbindgen:
     plugin: nil
-    after:
-      - rust
+    build-packages:
+      - cargo-1.91
     override-build: |
       craftctl default
-      cargo install cbindgen
+      cargo-1.91 install cbindgen
     override-prime: ''
+
   mozconfig:
     plugin: nil
     override-stage: |
@@ -178,7 +160,6 @@ parts:
       - distribution
       - dump-syms
       - mozconfig
-      - rust
       - thunderbird-langpacks
     build-packages:
       - cargo
@@ -200,7 +181,7 @@ parts:
       - nasm
       - nodejs
       - quilt
-      - rustc
+      - rustc-1.91
       - unzip
       - wget
       - xvfb
@@ -225,6 +206,13 @@ parts:
       ' _ {} + || :
     override-build: |
       craftctl default
+
+      ln  -sf /usr/bin/rustc-1.91          /usr/bin/rustc
+      ln  -sf /usr/bin/rust-1.91-clang     /usr/bin/rust-clang
+      ln  -sf /usr/bin/rust-1.91-lld       /usr/bin/rust-lld
+      ln  -sf /usr/bin/rust-1.91-llvm-dwp  /usr/bin/rust-llvm-dwp
+      ln  -sf /usr/bin/cargo-1.91          /usr/bin/cargo
+
       export PATH=$CRAFT_STAGE/usr/bin:/usr/lib/llvm-20/bin/:$PATH
       export MOZCONFIG="$CRAFT_STAGE/mozconfig"
       QUILT_PATCHES=$CRAFT_PROJECT_DIR/patches quilt push -a
