@@ -1,4 +1,3 @@
-no-attribute-warn.patch
 relax-nodejs-dep.patch
 disable-rust-lto.patch
 native-messaging-portal.patch
