@@ -79,6 +79,8 @@ plugs:
     read: [/var/lib/snapd/hostfs/usr/share/hunspell]
 
 layout:
+  /usr/lib/x86_64-linux-gnu/libcanberra-0.30:
+    bind: $SNAP/gnome-platform/usr/lib/x86_64-linux-gnu/libcanberra-0.30
   /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/opensc-pkcs11.so:
     bind-file: $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/opensc-pkcs11.so
   /usr/bin/gpg:
