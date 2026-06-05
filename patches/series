@@ -1,4 +1,5 @@
 relax-nodejs-dep.patch
 disable-rust-lto.patch
 native-messaging-portal.patch
-webrtc-riscv.patch
+riscv:webrtc.patch
+riscv:disable-jit.patch

@@ -1,0 +1,10 @@
+js/src/jit/riscv64/Simulator-riscv64.h:32:4: error: "simulator disabled"
+
+--- a/js/moz.configure
++++ b/js/moz.configure
+@@ -265,5 +265,4 @@
+         "mips64",
+         "loongarch64",
+-        "riscv64",
+     ):
+         return True
