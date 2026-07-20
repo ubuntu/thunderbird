@@ -172,6 +172,7 @@ parts:
       - coreutils
       - file
       - git
+      - mercurial
       - libasound2-dev
       - libclang-20-dev
       - libdbus-glib-1-dev
