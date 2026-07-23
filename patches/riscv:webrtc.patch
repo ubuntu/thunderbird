@@ -1,0 +1,18 @@
+Description: Fix failure to build WebRTC on Risc-V.
+Author: Nathan Pratta Teodosio <nteodosio@ubuntu.com>
+Forwarded: not-needed
+
+There is no proper way to upstream this patch because unistd_64.h does
+exist in more recent versions of linux-libc-dev.
+
+It can be dropped once we build on a 26.04 base.
+
+--- a/third_party/libwebrtc/rtc_base/platform_thread_types.cc
++++ b/third_party/libwebrtc/rtc_base/platform_thread_types.cc
+@@ -17,5 +17,5 @@
+ #include <sys/syscall.h>
+ 
+-#if !defined(WEBRTC_ARCH_ARM) && !defined(WEBRTC_ARCH_ARM64)
++#if !defined(WEBRTC_ARCH_ARM) && !defined(WEBRTC_ARCH_ARM64) && !defined(__riscv)
+ #include <asm/unistd_64.h>
+ #endif
