@@ -1,0 +1,17 @@
+The identifier "Success" is clashing:
+
+  /build/thunderbird/parts/thunderbird/build/security/nss/lib/mozpkix/include/pkix/Result.h:210:21: error: expected unqualified-id
+    210 | static const Result Success = Result::Success;
+        |                     ^
+  /snap/gnome-46-2404-sdk/187/usr/include/X11/X.h:350:21: note: expanded from macro 'Success'
+    350 | #define Success            0    /* everything's okay */
+        |                            ^
+
+--- a/security/nss/lib/mozpkix/include/pkix/Result.h 
++++ b/security/nss/lib/mozpkix/include/pkix/Result.h 
+@@ -28,4 +28,5 @@
+ namespace pkix {
+ 
++#undef Success
+ static const unsigned int FATAL_ERROR_FLAG = 0x800;
+ 
