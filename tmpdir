@@ -1,6 +1,13 @@
 #!/bin/bash
+bugs="https://github.com/ubuntu/thunderbird/issues/67"
 
 # Set TMPDIR to be under the user's default Downloads dir
-export TMPDIR=$(xdg-user-dir DOWNLOAD)/thunderbird.tmp
+if [ -z "$TMPDIR" ]; then
+    TMPDIR=$(xdg-user-dir DOWNLOAD)/thunderbird.tmp
+else
+    >&2 echo "The environment variable TMPDIR was set by the user. " \
+             "He thereat acknowledges the risk of hitting $bugs."
+fi
+export TMPDIR
 
 exec "$@"
