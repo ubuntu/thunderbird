@@ -2,7 +2,7 @@
 bugs="https://github.com/ubuntu/thunderbird/issues/67"
 
 # Set TMPDIR to be under the user's default Downloads dir
-if [ -z "$TMPDIR" ]; then
+if [ "$TMPDIR" = /tmp ]; then
     TMPDIR=$(xdg-user-dir DOWNLOAD)/thunderbird.tmp
 else
     >&2 echo "The environment variable TMPDIR was set by the user. " \
