@@ -1,3 +1,4 @@
+name-clash-x11-mozpkix.patch
 undeclared-identifiers.patch
 relax-nodejs-dep.patch
 disable-rust-lto.patch
