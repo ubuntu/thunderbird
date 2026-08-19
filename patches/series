@@ -1,3 +1,4 @@
+undeclared-identifiers.patch
 relax-nodejs-dep.patch
 disable-rust-lto.patch
 native-messaging-portal.patch
