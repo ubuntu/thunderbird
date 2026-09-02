@@ -5,3 +5,4 @@ native-messaging-portal.patch
 riscv:webrtc.patch
 riscv:disable-jit.patch
 name-clash-x11-mozpkix.patch
+riscv:zve32f.patch
