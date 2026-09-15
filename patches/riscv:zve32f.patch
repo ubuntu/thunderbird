@@ -1,0 +1,38 @@
+--- a/third_party/llama.cpp/ggml/src/ggml-cpu/vec.h
++++ b/third_party/llama.cpp/ggml/src/ggml-cpu/vec.h
+@@ -397,7 +397,7 @@
+ 
+             svst1_f32(pg, y + np2, ay1);
+         }
+-    #elif defined(__riscv_v_intrinsic)
++    #elif defined(__riscv_v_intrinsic) && defined(__riscv_zve32f)
+         for (int i = 0, avl; i < n; i += avl) {
+             avl = __riscv_vsetvl_e32m8(n - i);
+             vfloat32m8_t ax = __riscv_vle32_v_f32m8(&x[i], avl);
+@@ -600,7 +600,7 @@
+                 y[i] += x[k][i]*v[k][0];
+             }
+         }
+-    #elif defined(__riscv_v_intrinsic)
++    #elif defined(__riscv_v_intrinsic) && defined(__riscv_zve32f)
+         for (int i = 0, avl; i < n; i += avl) {
+             avl = __riscv_vsetvl_e32m8(n - i);
+             vfloat32m8_t ay = __riscv_vle32_v_f32m8(&y[i], avl);
+@@ -661,7 +661,7 @@
+         for (int i = 0; i < n; ++i) {
+             y[i] = x[i]*s + b;
+         }
+-    #elif defined(__riscv_v_intrinsic)
++    #elif defined(__riscv_v_intrinsic) && defined(__riscv_zve32f)
+         for (int i = 0, avl; i < n; i += avl) {
+             avl = __riscv_vsetvl_e32m8(n - i);
+             vfloat32m8_t ax = __riscv_vle32_v_f32m8(&x[i], avl);
+@@ -730,7 +730,7 @@
+             ay1 = svmul_f32_m(pg, ay1, vx);
+             svst1_f32(pg, y + i, ay1);
+         }
+-    #elif defined(__riscv_v_intrinsic)
++    #elif defined(__riscv_v_intrinsic) && defined(__riscv_zve32f)
+         for (int i = 0, avl; i < n; i += avl) {
+             avl = __riscv_vsetvl_e32m8(n - i);
+             vfloat32m8_t ay = __riscv_vle32_v_f32m8(&y[i], avl);
