@@ -1,7 +1,6 @@
 name-clash-x11-mozpkix.patch
 undeclared-identifiers.patch
 relax-nodejs-dep.patch
-disable-rust-lto.patch
 native-messaging-portal.patch
 riscv:webrtc.patch
 riscv:disable-jit.patch
