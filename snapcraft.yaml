@@ -383,6 +383,38 @@ parts:
         cd "/snap/$snap/current" && find . -type f,l -exec rm -f "$CRAFT_PRIME/{}" \;
       done
 
+  # Bundle patched Kerberos library that ignores failed includedirs (LP:2122317)
+  #
+  # We need to untangle this part from Gnome extension's idiosyncrasies,
+  # as they cause cryptic errors including but not limited to
+  #
+  # > relocation R_X86_64_TPOFF32 against `buffer' can not be used when making
+  # > a shared object; recompile with -fPIC"
+  kerberos:
+    plugin: nil
+    build-packages:
+      - ubuntu-dev-tools
+      - python3-lxml # Missing from Krb5 build-dependencies?
+    build-environment:
+      - DEB_BUILD_OPTIONS: nodoc
+      # Delete Gnome extension's injections in this variable
+      - PKG_CONFIG_PATH: $CRAFT_STAGE/usr/share/pkgconfig
+    override-build: |
+      # Delete Gnome extension's injections in this variable
+      export PATH=${PATH#/snap*:}
+
+      # Fetch, patch and build Kerberos
+      releasePocket=$(lsb_release -c | cut -f2)
+      pull-lp-source krb5 "$releasePocket"
+      cd krb5*/
+      apt build-dep -y .
+      patch -p1 < "$CRAFT_PROJECT_DIR/patches/krb/ignore-failed-includedirs"
+      ./debian/rules build
+
+      # Prime its resultant relevant libraries
+      mkdir -p "$CRAFT_PRIME/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR"
+      cp build/lib/*krb5*.so.? "$CRAFT_PRIME/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR"
+
 slots:
   dbus-daemon:
     interface: dbus
