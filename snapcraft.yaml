@@ -120,7 +120,7 @@ parts:
         GECKO_REV=$TB_SOURCE_REPO/raw-file/${TB_SOURCE_STAMP}/.gecko_rev.yml
         GECKO_REVS=$(curl -sSL "${GECKO_REV}" | grep -v "#")
         MOZ_SOURCE_REPO=$(echo "$GECKO_REVS" | grep GECKO_HEAD_REPOSITORY | sed -e 's/GECKO_HEAD_REPOSITORY: //g')
-        MOZ_SOURCE_STAMP=$(echo "$GECKO_REVS" | grep GECKO_HEAD_REV | sed -e 's/GECKO_HEAD_REV: //g')
+        MOZ_SOURCE_STAMP=$(echo "$GECKO_REVS" | grep GECKO_HEAD_REF | sed -e 's/GECKO_HEAD_REF: //g')
         FETCHES=$MOZ_SOURCE_REPO/raw-file/$MOZ_SOURCE_STAMP/taskcluster/kinds/fetch/toolchains.yml
         TOOLCHAINS=$(curl -sSL "${FETCHES}")
         unset PYTHONPATH
