@@ -371,17 +371,6 @@ parts:
       cp "$CRAFT_PROJECT_DIR/thunderbird.launcher" "$CRAFT_PRIME/"
       cp "$CRAFT_PROJECT_DIR/patch-default-profile.py" "$CRAFT_PRIME/"
 
-  # Find files provided by the base and platform snap and ensure they aren't
-  # duplicated in this snap
-  cleanup:
-    after: [thunderbird]
-    plugin: nil
-    build-snaps: [core26, gnome-core26]
-    override-prime: |
-      set -eux
-      for snap in "core26" "gnome-core26"; do
-        cd "/snap/$snap/current" && find . -type f,l -exec rm -f "$CRAFT_PRIME/{}" \;
-      done
 
   # Bundle patched Kerberos library that ignores failed includedirs (LP:2122317)
   #
