@@ -345,7 +345,6 @@ parts:
       - libudev1
       - libuuid1
       - zlib1g
-      - liblz4-1
       - libxt6t64
     prime:
       - -usr/lib/*/libgio*
