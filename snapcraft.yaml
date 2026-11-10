@@ -220,7 +220,7 @@ parts:
       export PATH=$CRAFT_STAGE/usr/bin:/usr/lib/llvm-20/bin/:$PATH
       export MOZCONFIG="$CRAFT_STAGE/mozconfig"
       QUILT_PATCHES=$CRAFT_PROJECT_DIR/patches quilt push -a
-      GNOME_SDK_SNAP=/snap/gnome-46-2404-sdk/current
+      GNOME_SDK_SNAP=/snap/gnome-core26/current
       if [ $CRAFT_ARCH_BUILD_FOR = "amd64" ]; then
         # "clang -dumpmachine" returns "x86_64-unknown-linux-gnu" on
         # amd64 (at least the binaries they distribute), but what we
@@ -267,12 +267,6 @@ parts:
         DUMP_SYMS=$CRAFT_STAGE/usr/bin/dump_syms $MACH buildsymbols
         cp obj-*/dist/thunderbird-*.crashreporter-symbols.zip $CRAFT_STAGE/debug-symbols/
       fi
-    override-stage: |
-      # Workaround for LP: #2016358: create mount points for the gnome
-      # content interface, while a proper fix is implemented in snapd.
-      # Thanks to James Henstridge.
-      mkdir $CRAFT_PART_INSTALL/{gpu-2604,data-dir,data-dir/{icons,sounds,themes}}
-      craftctl default
     stage-packages:
       - opensc-pkcs11
     prime:
