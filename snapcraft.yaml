@@ -103,7 +103,7 @@ parts:
   dump-syms:
     plugin: nil
     build-packages:
-      - cargo-1.91
+      - cargo-1.97
       - curl
       - git
       - jq
@@ -129,7 +129,7 @@ parts:
     override-build: |
       craftctl default
       if [ $CRAFT_ARCH_BUILD_FOR = "amd64" ] || [ $CRAFT_ARCH_BUILD_FOR = "arm64" ]; then
-        cargo-1.91 build --release
+        cargo-1.97 build --release
         mkdir -p $CRAFT_STAGE/usr/bin/
         cp target/release/dump_syms $CRAFT_STAGE/usr/bin/
       fi
@@ -137,10 +137,10 @@ parts:
   cbindgen:
     plugin: nil
     build-packages:
-      - cargo-1.91
+      - cargo-1.97
     override-build: |
       craftctl default
-      cargo-1.91 install cbindgen
+      cargo-1.97 install cbindgen
     override-prime: ''
 
   mozconfig:
@@ -183,7 +183,7 @@ parts:
       - nasm
       - nodejs
       - quilt
-      - rustc-1.91
+      - rustc-1.97
       - unzip
       - wget
       - xvfb
@@ -209,11 +209,11 @@ parts:
     override-build: |
       craftctl default
 
-      ln  -sf /usr/bin/rustc-1.91          /usr/bin/rustc
-      ln  -sf /usr/bin/rust-1.91-clang     /usr/bin/rust-clang
-      ln  -sf /usr/bin/rust-1.91-lld       /usr/bin/rust-lld
-      ln  -sf /usr/bin/rust-1.91-llvm-dwp  /usr/bin/rust-llvm-dwp
-      ln  -sf /usr/bin/cargo-1.91          /usr/bin/cargo
+      ln  -sf /usr/bin/rustc-1.97          /usr/bin/rustc
+      ln  -sf /usr/bin/rust-1.97-clang     /usr/bin/rust-clang
+      ln  -sf /usr/bin/rust-1.97-lld       /usr/bin/rust-lld
+      ln  -sf /usr/bin/rust-1.97-llvm-dwp  /usr/bin/rust-llvm-dwp
+      ln  -sf /usr/bin/cargo-1.97          /usr/bin/cargo
 
       export PATH=$CRAFT_STAGE/usr/bin:/usr/lib/llvm-20/bin/:$PATH
       export MOZCONFIG="$CRAFT_STAGE/mozconfig"
