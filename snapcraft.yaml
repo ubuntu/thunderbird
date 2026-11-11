@@ -18,7 +18,7 @@ summary: Mozilla Thunderbird email application
 description: Thunderbird is a free email application that’s easy to set up and customize - and it’s loaded with great features!
 confinement: strict
 grade: stable
-base: core26
+base: core24
 compression: lzo
 contact: https://www.thunderbird.net/contact/
 donation: https://www.thunderbird.net/donate/
@@ -220,7 +220,7 @@ parts:
       export PATH=$CRAFT_STAGE/usr/bin:/usr/lib/llvm-20/bin/:$PATH
       export MOZCONFIG="$CRAFT_STAGE/mozconfig"
       QUILT_PATCHES=$CRAFT_PROJECT_DIR/patches quilt push -a
-      GNOME_SDK_SNAP=/snap/gnome-core26/current
+      GNOME_SDK_SNAP=/snap/gnome-46-2404-sdk/current
       if [ $CRAFT_ARCH_BUILD_FOR = "amd64" ]; then
         # "clang -dumpmachine" returns "x86_64-unknown-linux-gnu" on
         # amd64 (at least the binaries they distribute), but what we
@@ -267,6 +267,12 @@ parts:
         DUMP_SYMS=$CRAFT_STAGE/usr/bin/dump_syms $MACH buildsymbols
         cp obj-*/dist/thunderbird-*.crashreporter-symbols.zip $CRAFT_STAGE/debug-symbols/
       fi
+    override-stage: |
+      # Workaround for LP: #2016358: create mount points for the gnome
+      # content interface, while a proper fix is implemented in snapd.
+      # Thanks to James Henstridge.
+      mkdir $CRAFT_PART_INSTALL/{gpu-2404,data-dir,data-dir/{icons,sounds,themes}}
+      craftctl default
     stage-packages:
       - opensc-pkcs11
     prime:
@@ -275,7 +281,7 @@ parts:
       - usr/lib/*/opensc-pkcs11.so
       - usr/lib/*/pkcs11/opensc-pkcs11.so
       # Workaround for LP: #2016358 (see the 'override-stage' above).
-      - gpu-2604
+      - gpu-2404
       - data-dir/icons
       - data-dir/sounds
       - data-dir/themes
@@ -310,7 +316,7 @@ parts:
     stage-packages:
       - gnupg
       - gnupg-agent
-      - libgpgme45
+      - libgpgme11
       - libgpg-error0
     override-prime: |
       craftctl default
@@ -330,7 +336,7 @@ parts:
     stage-packages:
       - desktop-file-utils
       - libblkid1
-      - libcurl4t64 # Needed for the crash reporter (LP: #1983502)
+      - libcurl4 # Needed for the crash reporter (LP: #1983502)
       - libecal-2.0-3 # Needed for EDS Calendar Integration extension.
       - libgcrypt20
       - liblzma5
@@ -368,10 +374,10 @@ parts:
   cleanup:
     after: [thunderbird]
     plugin: nil
-    build-snaps: [core26, gnome-core26]
+    build-snaps: [core24, gnome-46-2404]
     override-prime: |
       set -eux
-      for snap in "core26" "gnome-core26"; do
+      for snap in "core24" "gnome-46-2404"; do
         cd "/snap/$snap/current" && find . -type f,l -exec rm -f "$CRAFT_PRIME/{}" \;
       done
 
