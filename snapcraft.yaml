@@ -27,7 +27,7 @@ description: |
   Read more about Thunderbird channels at https://developer.thunderbird.net/releases/channels.
 confinement: strict
 grade: stable
-base: core26
+base: core24
 compression: lzo
 contact: https://www.thunderbird.net/contact/
 donation: https://www.thunderbird.net/donate/
@@ -226,10 +226,10 @@ parts:
       export PATH=$CRAFT_STAGE/usr/bin:/usr/lib/llvm-20/bin/:$PATH
       export MOZCONFIG="$CRAFT_STAGE/mozconfig"
       QUILT_PATCHES=$CRAFT_PROJECT_DIR/patches quilt push -a
-      GNOME_SDK_SNAP=/snap/gnome-core26-sdk/current
+      GNOME_SDK_SNAP=/snap/gnome-46-2404-sdk/current
       # XXX: Remove when the SDK finally builds reliably in Risc-V again.
       if [ $CRAFT_ARCH_BUILD_FOR = "riscv64" ]; then
-        snap refresh --edge gnome-core26-sdk
+        snap refresh --edge gnome-46-2404-sdk
       fi
       if [ $CRAFT_ARCH_BUILD_FOR = "amd64" ]; then
         # "clang -dumpmachine" returns "x86_64-unknown-linux-gnu" on
@@ -281,7 +281,7 @@ parts:
       # Workaround for LP: #2016358: create mount points for the gnome
       # content interface, while a proper fix is implemented in snapd.
       # Thanks to James Henstridge.
-      mkdir $CRAFT_PART_INSTALL/{gpu-2604,data-dir,data-dir/{icons,sounds,themes}}
+      mkdir $CRAFT_PART_INSTALL/{gpu-2404,data-dir,data-dir/{icons,sounds,themes}}
       craftctl default
     stage-packages:
       - opensc-pkcs11
@@ -291,7 +291,7 @@ parts:
       - usr/lib/*/opensc-pkcs11.so
       - usr/lib/*/pkcs11/opensc-pkcs11.so
       # Workaround for LP: #2016358 (see the 'override-stage' above).
-      - gpu-2604
+      - gpu-2404
       - data-dir/icons
       - data-dir/sounds
       - data-dir/themes
@@ -326,7 +326,7 @@ parts:
     stage-packages:
       - gnupg
       - gnupg-agent
-      - libgpgme45
+      - libgpgme11t64
       - libgpg-error0
     override-prime: |
       craftctl default
@@ -346,14 +346,14 @@ parts:
     stage-packages:
       - desktop-file-utils
       - libblkid1
-      - libcurl4t64 # Needed for the crash reporter (LP: #1983502)
+      - libcurl4 # Needed for the crash reporter (LP: #1983502)
       - libgcrypt20
       - liblzma5
       - libudev1
       - libuuid1
       - zlib1g
       - liblz4-1
-      - libxt6t64
+      - libxt6
     prime:
       - -usr/lib/*/libgio*
       - -usr/lib/*/libglib*
@@ -383,10 +383,10 @@ parts:
   cleanup:
     after: [thunderbird]
     plugin: nil
-    build-snaps: [core26, gnome-core26]
+    build-snaps: [core24, gnome-46-2404]
     override-prime: |
       set -eux
-      for snap in "core26" "gnome-core26"; do
+      for snap in "core24" "gnome-46-2404"; do
         cd "/snap/$snap/current" && find . -type f,l -exec rm -f "$CRAFT_PRIME/{}" \;
       done
 
