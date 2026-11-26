@@ -240,8 +240,6 @@ parts:
         # https://bugzilla.mozilla.org/show_bug.cgi?id=1980339
         BUILD_DBGSYMS=false
         echo "ac_add_options --disable-debug-symbols" >> $MOZCONFIG
-        # To avoid OOM
-        echo "ac_add_options --enable-linker=gold" >> $MOZCONFIG
       fi
       export LDFLAGS="-Wl,-rpath-link=$GNOME_SDK_SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_ON -Wl,-rpath-link=$GNOME_SDK_SNAP/usr/lib"
       export LDFLAGS="-Wl,-rpath-link=$CRAFT_PART_BUILD/obj-$TARGET_TRIPLET/dist/bin${LDFLAGS:+ $LDFLAGS}"
